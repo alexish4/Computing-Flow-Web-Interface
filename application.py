@@ -4,7 +4,7 @@ import scipy as sp
 from scipy.sparse import coo_matrix
 import copy
 
-application=Flask(__name__)
+app=Flask(__name__)
 
 @app.route('/')
 def index():
