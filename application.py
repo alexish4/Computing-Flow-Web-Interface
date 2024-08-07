@@ -13,13 +13,15 @@ def index():
 
 @app.route('/upload', methods=['POST'])
 def upload_file():
+    print("test")
     file = request.files['file']
     source = int(request.form['source'])
     sink = int(request.form['sink'])
     
     data = np.loadtxt(file, delimiter=',')
-    rows, cols, weights = data[:, 0], data[:, 1], data[:, 2]
+    rows, cols, weights = data[:, 0].astype(int), data[:, 1].astype(int), data[:, 2]
     adj_matrix = coo_matrix((weights, (rows, cols)))
+    print(adj_matrix)
     
     betweenness_score = compute_flow_betweenness(adj_matrix, source, sink)
     
@@ -27,6 +29,7 @@ def upload_file():
 
 def compute_flow_betweenness(adj_matrix, source, sink):
     tempAdjDense = adj_matrix.todense()
+    print(tempAdjDense)
     
     # Convert adjacency matrix to Laplacian matrix
     tempLapDense = -copy.deepcopy(tempAdjDense)
@@ -41,9 +44,9 @@ def compute_flow_betweenness(adj_matrix, source, sink):
     v_1_10_sink = tempLinv[sink, 0] - tempLinv[sink, -1]
     b_source_sink = adj_matrix[source, sink] * (v_1_10_source - v_1_10_sink)
     
-    return b_source_sink
+    return b_source_sink.item()  # Convert to a standard Python type
 
 if __name__ == '__main__':
-    #app.run(debug=True)
-    port = int(os.environ.get("PORT", 5000))
-    app.run(host='0.0.0.0', port=port)
+    app.run(debug=True)
+    # port = int(os.environ.get("PORT", 5000))
+    # app.run(host='0.0.0.0', port=port)
