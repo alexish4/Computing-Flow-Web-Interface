@@ -3,6 +3,7 @@ import numpy as np
 import scipy as sp
 from scipy.sparse import coo_matrix
 import copy
+import os
 
 app=Flask(__name__)
 
@@ -44,3 +45,5 @@ def compute_flow_betweenness(adj_matrix, source, sink):
 
 if __name__ == '__main__':
     app.run(debug=True)
+    port = int(os.environ.get("PORT", 5000))
+    app.run(host='0.0.0.0', port=port)
