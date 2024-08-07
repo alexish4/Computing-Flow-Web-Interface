@@ -44,6 +44,6 @@ def compute_flow_betweenness(adj_matrix, source, sink):
     return b_source_sink
 
 if __name__ == '__main__':
-    app.run(debug=True)
+    #app.run(debug=True)
     port = int(os.environ.get("PORT", 5000))
     app.run(host='0.0.0.0', port=port)
