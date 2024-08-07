@@ -42,7 +42,7 @@ def compute_flow_betweenness(adj_matrix, source, sink):
     # Compute flow betweenness for the given edge
     v_1_10_source = tempLinv[source, 0] - tempLinv[source, -1]
     v_1_10_sink = tempLinv[sink, 0] - tempLinv[sink, -1]
-    b_source_sink = adj_matrix[source, sink] * (v_1_10_source - v_1_10_sink)
+    b_source_sink = tempAdjDense[source, sink] * (v_1_10_source - v_1_10_sink)
     
     return b_source_sink.item()  # Convert to a standard Python type
 
