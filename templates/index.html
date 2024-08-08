@@ -13,6 +13,7 @@
     </form>
     <svg width="960" height="600"></svg>
     <button id="calculate-button">Calculate</button>
+    <pre id="output"></pre>
     <script>
         let source_id = null;
         let sink_id = null;
@@ -148,30 +149,29 @@
                 d.fx = null;
                 d.fy = null;
             }
+
+            // Handle Calculate button click
+            document.getElementById('calculate-button').onclick = async function() {
+                if (source_id !== null && sink_id !== null) {
+                    // Add code here to handle the calculation with the selected nodes
+                    //alert(`Calculate between nodes ${source_id} and ${sink_id}`);
+                    
+                    const sourceResid = source_id;
+                    const sinkResid = sink_id;
+
+                    const formData = new FormData();
+                    formData.append('source', sourceResid);
+                    formData.append('sink', sinkResid);
+                    const response = await fetch('/calculate', {
+                        method: 'POST',
+                        body: formData
+                    });
+
+                    const result = await response.json();
+                    document.getElementById('output').textContent = JSON.stringify(result, null, 2);
+                }
+            };
         }
-    </script>
-    <script>
-        // Handle Calculate button click
-        document.getElementById('calculate-button').addEventListener('calculate-button', async function(e) {
-            if (source_id !== null && sink_id !== null) {
-                // Add code here to handle the calculation with the selected nodes
-                alert(`Calculate between nodes ${source_id} and ${sink_id}`);
-                
-                const sourceResid = source_id;
-                const sinkResid = sink_id;
-
-                const formData = new FormData();
-                formData.append('source', sourceResid);
-                formData.append('sink', sinkResid);
-                const response = fetch('/calculate', {
-                    method: 'POST',
-                    body: formData
-                });
-
-            const result = response.json();
-            document.getElementById('output').textContent = JSON.stringify(result, null, 2);
-            }
-        });
     </script>
 </body>
 </html>

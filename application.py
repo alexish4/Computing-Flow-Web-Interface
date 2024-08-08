@@ -70,7 +70,7 @@ def compute_flow_betweenness():
     b_source_sink = tempAdjDense[source, sink] * (v_1_10_source - v_1_10_sink)
 
     betweenness_score = b_source_sink.item() # Convert to a standard Python type
-    print("betweenness score is " + betweenness_score)
+    print("betweenness score is ", betweenness_score)
     
     return jsonify({'betweenness_score': betweenness_score})
 
