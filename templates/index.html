@@ -12,6 +12,7 @@
         <button type="submit">Upload CSV</button>
     </form>
     <svg width="960" height="600"></svg>
+    <button id="calculate-button">Calculate</button>
     <script>
         let source_id = null;
         let sink_id = null;
@@ -83,6 +84,8 @@
                         d3.select(this).attr("fill", "red");
                     }
 
+                    updateCalculateButtonVisibility();
+
                     console.log("Source ID:", source_id, "Sink ID:", sink_id);
                 })
                 .call(d3.drag()
@@ -120,6 +123,15 @@
                     .attr("transform", d => `translate(${width - d.x},${height - d.y})`);
             }
 
+            function updateCalculateButtonVisibility() {
+                const calculateButton = document.getElementById('calculate-button');
+                if (source_id !== null && sink_id !== null) {
+                    calculateButton.style.display = 'inline'; // Show button
+                } else {
+                    calculateButton.style.display = 'none'; // Hide button
+                }
+            }
+
             function dragstarted(event, d) {
                 if (!event.active) simulation.alphaTarget(0.3).restart();
                 d.fx = d.x;
@@ -137,6 +149,29 @@
                 d.fy = null;
             }
         }
+    </script>
+    <script>
+        // Handle Calculate button click
+        document.getElementById('calculate-button').addEventListener('calculate-button', async function(e) {
+            if (source_id !== null && sink_id !== null) {
+                // Add code here to handle the calculation with the selected nodes
+                alert(`Calculate between nodes ${source_id} and ${sink_id}`);
+                
+                const sourceResid = source_id;
+                const sinkResid = sink_id;
+
+                const formData = new FormData();
+                formData.append('source', sourceResid);
+                formData.append('sink', sinkResid);
+                const response = fetch('/calculate', {
+                    method: 'POST',
+                    body: formData
+                });
+
+            const result = response.json();
+            document.getElementById('output').textContent = JSON.stringify(result, null, 2);
+            }
+        });
     </script>
 </body>
 </html>

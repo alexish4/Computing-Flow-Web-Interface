@@ -9,13 +9,16 @@ import pandas as pd
 
 app=Flask(__name__)
 
+adj_matrix = []
+
 @app.route('/')
 def index():
     return render_template('index.html')
 
 @app.route('/upload', methods=['POST'])
 def upload_file():
-    print("test")
+    global adj_matrix
+
     file = request.files['file']
     # source = int(request.form['source'])
     # sink = int(request.form['sink'])
@@ -43,7 +46,14 @@ def upload_file():
     
     # return jsonify({'betweenness_score': betweenness_score})
 
-def compute_flow_betweenness(adj_matrix, source, sink):
+@app.route('/calculate', methods=['POST'])
+def compute_flow_betweenness():
+    global adj_matrix
+    print("Test")
+
+    source = int(request.form['source'])
+    sink = int(request.form['sink'])
+    
     tempAdjDense = adj_matrix.todense()
     
     # Convert adjacency matrix to Laplacian matrix
@@ -58,8 +68,11 @@ def compute_flow_betweenness(adj_matrix, source, sink):
     v_1_10_source = tempLinv[source, 0] - tempLinv[source, -1]
     v_1_10_sink = tempLinv[sink, 0] - tempLinv[sink, -1]
     b_source_sink = tempAdjDense[source, sink] * (v_1_10_source - v_1_10_sink)
+
+    betweenness_score = b_source_sink.item() # Convert to a standard Python type
+    print("betweenness score is " + betweenness_score)
     
-    return b_source_sink.item()  # Convert to a standard Python type
+    return jsonify({'betweenness_score': betweenness_score})
 
 if __name__ == '__main__':
     app.run(debug=True)
