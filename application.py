@@ -20,8 +20,6 @@ def upload_file():
     global adj_matrix
 
     file = request.files['file']
-    # source = int(request.form['source'])
-    # sink = int(request.form['sink'])
     
     data = np.loadtxt(file, delimiter=',')
     rows, cols, weights = data[:, 0].astype(int), data[:, 1].astype(int), data[:, 2]
@@ -31,28 +29,20 @@ def upload_file():
     G = nx.from_scipy_sparse_array(adj_matrix)
 
     # label nodes to match their index in the adjacency matrix
-    mapping = {i: i for i in range(adj_matrix.shape[0])}
+    mapping = {i: i + 1 for i in range(adj_matrix.shape[0])}
     G = nx.relabel_nodes(G, mapping)
 
     # Convert graph to D3.js compatible format
     data = nx.node_link_data(G)
     return jsonify(data)
-    
-    #betweenness_score = compute_flow_betweenness(adj_matrix, source - 1, sink - 1) #using edge number
-
-    #if negative convert to positive
-    # if betweenness_score < 0:
-    #     betweenness_score *= -1 
-    
-    # return jsonify({'betweenness_score': betweenness_score})
 
 @app.route('/calculate', methods=['POST'])
 def compute_flow_betweenness():
     global adj_matrix
     print("Test")
 
-    source = int(request.form['source'])
-    sink = int(request.form['sink'])
+    source = int(request.form['source']) - 1
+    sink = int(request.form['sink']) - 1
     
     tempAdjDense = adj_matrix.todense()
     
@@ -70,7 +60,8 @@ def compute_flow_betweenness():
     b_source_sink = tempAdjDense[source, sink] * (v_1_10_source - v_1_10_sink)
 
     betweenness_score = b_source_sink.item() # Convert to a standard Python type
-    print("betweenness score is ", betweenness_score)
+    if betweenness_score < 0:
+        betweenness_score *= -1
     
     return jsonify({'betweenness_score': betweenness_score})
 
