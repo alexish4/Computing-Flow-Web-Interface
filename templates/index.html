@@ -2,46 +2,142 @@
 <html lang="en">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Flow Betweenness Calculator</title>
+    <title>Graph Visualization</title>
+    <script src="https://d3js.org/d3.v7.min.js"></script>
 </head>
 <body>
-    <h1>Flow Betweenness Calculator</h1>
-    <form id="upload-form">
-        <label for="csv-file">Upload CSV File:</label>
-        <input type="file" id="csv-file" accept=".csv">
-        <br>
-        <label for="source-resid">Source Residue ID:</label>
-        <input type="number" id="source-resid">
-        <br>
-        <label for="sink-resid">Sink Residue ID:</label>
-        <input type="number" id="sink-resid">
-        <br>
-        <button type="submit">Calculate</button>
+    <h1>Graph Visualization</h1>
+    <form id="upload-form" enctype="multipart/form-data">
+        <input type="file" name="file">
+        <button type="submit">Upload CSV</button>
     </form>
-    <pre id="output"></pre>
-
+    <svg width="960" height="600"></svg>
     <script>
-        document.getElementById('upload-form').addEventListener('submit', async function(e) {
+        let source_id = null;
+        let sink_id = null;
+
+        document.getElementById('upload-form').onsubmit = function(e) {
             e.preventDefault();
-
-            const fileInput = document.getElementById('csv-file');
-            const sourceResid = document.getElementById('source-resid').value;
-            const sinkResid = document.getElementById('sink-resid').value;
-
-            const formData = new FormData();
-            formData.append('file', fileInput.files[0]);
-            formData.append('source', sourceResid);
-            formData.append('sink', sinkResid);
-
-            const response = await fetch('/upload', {
+            let formData = new FormData(this);
+            fetch('/upload', {
                 method: 'POST',
                 body: formData
-            });
+            })
+            .then(response => response.json())
+            .then(data => drawGraph(data));
+        };
 
-            const result = await response.json();
-            document.getElementById('output').textContent = JSON.stringify(result, null, 2);
-        });
+        function drawGraph(graph) {
+            const svg = d3.select("svg");
+            svg.selectAll("*").remove(); // Clear previous graph
+
+            const width = +svg.attr("width");
+            const height = +svg.attr("height");
+
+            const simulation = d3.forceSimulation(graph.nodes)
+                .force("link", d3.forceLink(graph.links).id(d => d.id).distance(100).strength(1))
+                .force("charge", d3.forceManyBody().strength(-300))
+                .force("center", d3.forceCenter(width / 2, height / 2))
+
+
+            const link = svg.append("g")
+                .attr("class", "links")
+                .selectAll("line")
+                .data(graph.links)
+                .enter().append("line")
+                .attr("stroke-width", 2)
+                .attr("stroke", "#999");
+
+            // Label edges with weights
+            const linkLabels = svg.append("g")
+                .attr("class", "link-labels")
+                .selectAll("text")
+                .data(graph.links)
+                .enter().append("text")
+                .attr("text-anchor", "middle")
+                .attr("dy", -5)
+                .attr("font-size", "12px")
+                .attr("fill", "black")
+                .text(d => d.weight);
+
+            const node = svg.append("g")
+                .attr("class", "nodes")
+                .selectAll("g")
+                .data(graph.nodes)
+                .enter().append("g");
+
+            const circles = node.append("circle")
+                .attr("r", 10)
+                .attr("fill", "blue")
+                .on("click", function(event, d) {
+                    if (source_id === d.id) {
+                        source_id = null;
+                        d3.select(this).attr("fill", "blue");
+                    } else if (sink_id === d.id) {
+                        sink_id = null;
+                        d3.select(this).attr("fill", "blue");
+                    } else if (!source_id) {
+                        source_id = d.id;
+                        d3.select(this).attr("fill", "green");
+                    } else if (!sink_id) {
+                        sink_id = d.id;
+                        d3.select(this).attr("fill", "red");
+                    }
+
+                    console.log("Source ID:", source_id, "Sink ID:", sink_id);
+                })
+                .call(d3.drag()
+                    .on("start", dragstarted)
+                    .on("drag", dragged)
+                    .on("end", dragended));
+
+            const labels = node.append("text")
+                .attr("x", 15)
+                .attr("y", 5)
+                .attr("fill", "black")
+                .attr("font-size", "12px")
+                .attr("text-anchor", "middle")
+                .text(d => d.id);
+
+            simulation
+                .nodes(graph.nodes)
+                .on("tick", ticked);
+
+            simulation.force("link")
+                .links(graph.links);
+
+            function ticked() {
+                link
+                    .attr("x1", d => d.source.x)
+                    .attr("y1", d => d.source.y)
+                    .attr("x2", d => d.target.x)
+                    .attr("y2", d => d.target.y);
+
+                linkLabels
+                    .attr("x", d => (d.source.x + d.target.x) / 2)
+                    .attr("y", d => (d.source.y + d.target.y) / 2);
+
+                node
+                    .attr("transform", d => `translate(${d.x},${d.y})`);
+            }
+
+            function dragstarted(event, d) {
+                if (!event.active) simulation.alphaTarget(0.3).restart();
+                d.fx = d.x;
+                d.fy = d.y;
+            }
+
+            function dragged(event, d) {
+                d.fx = event.x;
+                d.fy = event.y;
+            }
+
+            function dragended(event, d) {
+                if (!event.active) simulation.alphaTarget(0);
+                d.fx = null;
+                d.fy = null;
+            }
+        }
     </script>
 </body>
 </html>

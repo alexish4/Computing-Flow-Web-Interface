@@ -5,6 +5,7 @@ from scipy.sparse import coo_matrix
 import copy
 import os
 import networkx as nx
+import pandas as pd
 
 app=Flask(__name__)
 
@@ -16,20 +17,31 @@ def index():
 def upload_file():
     print("test")
     file = request.files['file']
-    source = int(request.form['source'])
-    sink = int(request.form['sink'])
+    # source = int(request.form['source'])
+    # sink = int(request.form['sink'])
     
     data = np.loadtxt(file, delimiter=',')
     rows, cols, weights = data[:, 0].astype(int), data[:, 1].astype(int), data[:, 2]
     adj_matrix = coo_matrix((weights, (rows, cols)))
+
+     # Create graph
+    G = nx.from_scipy_sparse_array(adj_matrix)
+
+    # label nodes to match their index in the adjacency matrix
+    mapping = {i: i for i in range(adj_matrix.shape[0])}
+    G = nx.relabel_nodes(G, mapping)
+
+    # Convert graph to D3.js compatible format
+    data = nx.node_link_data(G)
+    return jsonify(data)
     
-    betweenness_score = compute_flow_betweenness(adj_matrix, source - 1, sink - 1) #using edge number
+    #betweenness_score = compute_flow_betweenness(adj_matrix, source - 1, sink - 1) #using edge number
 
     #if negative convert to positive
-    if betweenness_score < 0:
-        betweenness_score *= -1 
+    # if betweenness_score < 0:
+    #     betweenness_score *= -1 
     
-    return jsonify({'betweenness_score': betweenness_score})
+    # return jsonify({'betweenness_score': betweenness_score})
 
 def compute_flow_betweenness(adj_matrix, source, sink):
     tempAdjDense = adj_matrix.todense()
@@ -50,6 +62,6 @@ def compute_flow_betweenness(adj_matrix, source, sink):
     return b_source_sink.item()  # Convert to a standard Python type
 
 if __name__ == '__main__':
-    #app.run(debug=True)
-    port = int(os.environ.get("PORT", 5000))
-    app.run(host='0.0.0.0', port=port)
+    app.run(debug=True)
+    # port = int(os.environ.get("PORT", 5000))
+    # app.run(host='0.0.0.0', port=port)
