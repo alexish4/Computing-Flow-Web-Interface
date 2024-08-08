@@ -23,6 +23,10 @@ def upload_file():
     adj_matrix = coo_matrix((weights, (rows, cols)))
     
     betweenness_score = compute_flow_betweenness(adj_matrix, source - 1, sink - 1) #using edge number
+
+    #if negative convert to positive
+    if betweenness_score < 0:
+        betweenness_score *= -1 
     
     return jsonify({'betweenness_score': betweenness_score})
 
