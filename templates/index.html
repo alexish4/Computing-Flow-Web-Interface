@@ -26,12 +26,18 @@
         let resistor_1 = null;
         let resistor_2 = null;
 
+        let source_id = null;
+        let sink_id = null;
+
         document.getElementById('upload-form').onsubmit = function(e) {
             e.preventDefault();
             
             const fileInput = document.getElementById('csv-file');
             const sourceResid = document.getElementById('source-resid').value;
             const sinkResid = document.getElementById('sink-resid').value;
+
+            source_id = document.getElementById('source-resid').value;
+            sink_id = document.getElementById('sink-resid').value;
             
             const formData = new FormData();
             formData.append('file', fileInput.files[0]);
@@ -85,7 +91,16 @@
 
             const circles = node.append("circle")
                 .attr("r", 10)
-                .attr("fill", "blue")
+                .attr("fill", function(d) {
+                    if (d.id === parseInt(source_id)) {
+                        return "green";
+                    } else if(d.id === parseInt(sink_id)) {
+                        return "red";
+                    } else {
+                        return "blue";
+                    }
+                })
+
                 .on("click", function(event, d) {
                     if (resistor_1 === d.id) {
                         resistor_1 = null;
@@ -95,15 +110,15 @@
                         d3.select(this).attr("fill", "blue");
                     } else if (!resistor_1) {
                         resistor_1 = d.id;
-                        d3.select(this).attr("fill", "green");
+                        d3.select(this).attr("fill", "yellow");
                     } else if (!resistor_2) {
                         resistor_2 = d.id;
-                        d3.select(this).attr("fill", "red");
+                        d3.select(this).attr("fill", "yellow");
                     }
 
                     updateCalculateButtonVisibility();
 
-                    console.log("Source ID:", resistor_1, "Sink ID:", resistor_2);
+                    console.log("Resistor 1 ID:", resistor_1, "Resistor 2 ID:", resistor_2);
                 })
 
             const labels = node.append("text")
