@@ -36,8 +36,8 @@
             const sourceResid = document.getElementById('source-resid').value;
             const sinkResid = document.getElementById('sink-resid').value;
 
-            source_id = document.getElementById('source-resid').value;
-            sink_id = document.getElementById('sink-resid').value;
+            source_id = parseInt(document.getElementById('source-resid').value);
+            sink_id = parseInt(document.getElementById('sink-resid').value);
             
             const formData = new FormData();
             formData.append('file', fileInput.files[0]);
@@ -92,9 +92,9 @@
             const circles = node.append("circle")
                 .attr("r", 10)
                 .attr("fill", function(d) {
-                    if (d.id === parseInt(source_id)) {
+                    if (source_id === d.id) {
                         return "green";
-                    } else if(d.id === parseInt(sink_id)) {
+                    } else if(sink_id === d.id) {
                         return "red";
                     } else {
                         return "blue";
