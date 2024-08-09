@@ -10,6 +10,8 @@ import pandas as pd
 app=Flask(__name__)
 
 adj_matrix = []
+source = 0
+sink = 0
 
 @app.route('/')
 def index():
@@ -18,8 +20,12 @@ def index():
 @app.route('/upload', methods=['POST'])
 def upload_file():
     global adj_matrix
+    global source
+    global sink
 
     file = request.files['file']
+    source = int(request.form['source']) - 1
+    sink = int(request.form['sink']) - 1
     
     data = np.loadtxt(file, delimiter=',')
     rows, cols, weights = data[:, 0].astype(int), data[:, 1].astype(int), data[:, 2]
@@ -39,10 +45,11 @@ def upload_file():
 @app.route('/calculate', methods=['POST'])
 def compute_flow_betweenness():
     global adj_matrix
-    print("Test")
+    global source
+    global sink
 
-    source = int(request.form['source']) - 1
-    sink = int(request.form['sink']) - 1
+    resist_1 = int(request.form['resist1']) - 1
+    resist_2 = int(request.form['resist2']) - 1
     
     tempAdjDense = adj_matrix.todense()
     
@@ -55,17 +62,17 @@ def compute_flow_betweenness():
     tempLinv = np.linalg.pinv(tempLapDense)
     
     # Compute flow betweenness for the given edge
-    v_1_10_source = tempLinv[source, 0] - tempLinv[source, -1]
-    v_1_10_sink = tempLinv[sink, 0] - tempLinv[sink, -1]
-    b_source_sink = tempAdjDense[source, sink] * (v_1_10_source - v_1_10_sink)
+    v_source_sink_resist1 = tempLinv[resist_1, source] - tempLinv[resist_1, sink]
+    v_source_sink_resist2 = tempLinv[resist_2, source] - tempLinv[resist_2, sink]
+    b_resist1_resist2 = tempAdjDense[resist_1, resist_2] * (v_source_sink_resist1 - v_source_sink_resist2)
 
-    betweenness_score = b_source_sink.item() # Convert to a standard Python type
+    betweenness_score = b_resist1_resist2.item() # Convert to a standard Python type
     if betweenness_score < 0:
         betweenness_score *= -1
     
     return jsonify({'betweenness_score': betweenness_score})
 
 if __name__ == '__main__':
-    #app.run(debug=True)
-    port = int(os.environ.get("PORT", 5000))
-    app.run(host='0.0.0.0', port=port)
+    app.run(debug=True)
+    # port = int(os.environ.get("PORT", 5000))
+    # app.run(host='0.0.0.0', port=port)

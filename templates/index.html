@@ -7,20 +7,36 @@
 </head>
 <body>
     <h1>Graph Visualization</h1>
-    <form id="upload-form" enctype="multipart/form-data">
-        <input type="file" name="file">
-        <button type="submit">Upload CSV</button>
+    <form id="upload-form">
+        <label for="csv-file">Upload CSV File:</label>
+        <input type="file" id="csv-file" accept=".csv">
+        <br>
+        <label for="source-resid">Source Residue ID:</label>
+        <input type="number" id="source-resid">
+        <br>
+        <label for="sink-resid">Sink Residue ID:</label>
+        <input type="number" id="sink-resid">
+        <br>
+        <button type="submit">Submit</button>
     </form>
     <svg width="960" height="600"></svg>
     <button id="calculate-button" style="display: none;">Calculate</button> <!-- Initially hidden -->
     <pre id="output"></pre>
     <script>
-        let source_id = null;
-        let sink_id = null;
+        let resistor_1 = null;
+        let resistor_2 = null;
 
         document.getElementById('upload-form').onsubmit = function(e) {
             e.preventDefault();
-            let formData = new FormData(this);
+            
+            const fileInput = document.getElementById('csv-file');
+            const sourceResid = document.getElementById('source-resid').value;
+            const sinkResid = document.getElementById('sink-resid').value;
+            
+            const formData = new FormData();
+            formData.append('file', fileInput.files[0]);
+            formData.append('source', sourceResid);
+            formData.append('sink', sinkResid);
             fetch('/upload', {
                 method: 'POST',
                 body: formData
@@ -71,23 +87,23 @@
                 .attr("r", 10)
                 .attr("fill", "blue")
                 .on("click", function(event, d) {
-                    if (source_id === d.id) {
-                        source_id = null;
+                    if (resistor_1 === d.id) {
+                        resistor_1 = null;
                         d3.select(this).attr("fill", "blue");
-                    } else if (sink_id === d.id) {
-                        sink_id = null;
+                    } else if (resistor_2 === d.id) {
+                        resistor_2 = null;
                         d3.select(this).attr("fill", "blue");
-                    } else if (!source_id) {
-                        source_id = d.id;
+                    } else if (!resistor_1) {
+                        resistor_1 = d.id;
                         d3.select(this).attr("fill", "green");
-                    } else if (!sink_id) {
-                        sink_id = d.id;
+                    } else if (!resistor_2) {
+                        resistor_2 = d.id;
                         d3.select(this).attr("fill", "red");
                     }
 
                     updateCalculateButtonVisibility();
 
-                    console.log("Source ID:", source_id, "Sink ID:", sink_id);
+                    console.log("Source ID:", resistor_1, "Sink ID:", resistor_2);
                 })
 
             const labels = node.append("text")
@@ -122,7 +138,7 @@
 
             function updateCalculateButtonVisibility() {
                 const calculateButton = document.getElementById('calculate-button');
-                if (source_id !== null && sink_id !== null) {
+                if (resistor_1 !== null && resistor_2 !== null) {
                     calculateButton.style.display = 'inline'; // Show button
                 } else {
                     calculateButton.style.display = 'none'; // Hide button
@@ -131,16 +147,16 @@
 
             // Handle Calculate button click
             document.getElementById('calculate-button').onclick = async function() {
-                if (source_id !== null && sink_id !== null) {
+                if (resistor_1 !== null && resistor_2 !== null) {
                     // Add code here to handle the calculation with the selected nodes
-                    //alert(`Calculate between nodes ${source_id} and ${sink_id}`);
+                    //alert(`Calculate between nodes ${resistor_1} and ${resistor_2}`);
                     
-                    const sourceResid = source_id;
-                    const sinkResid = sink_id;
+                    const resist1Resid = resistor_1;
+                    const resist2Resid = resistor_2;
 
                     const formData = new FormData();
-                    formData.append('source', sourceResid);
-                    formData.append('sink', sinkResid);
+                    formData.append('resist1', resist1Resid);
+                    formData.append('resist2', resist2Resid);
                     const response = await fetch('/calculate', {
                         method: 'POST',
                         body: formData
