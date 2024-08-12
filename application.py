@@ -38,9 +38,45 @@ def upload_file():
     mapping = {i: i + 1 for i in range(adj_matrix.shape[0])}
     G = nx.relabel_nodes(G, mapping)
 
+    for u, v, data in G.edges(data=True):
+        # Calculate a new attribute based on the indices of the source (u) and target (v)
+        # For example, let's create an attribute 'index_diff' as the absolute difference between node indices
+        betw = get_betw_value(u, v)
+        data['betw'] = round(betw, 4) #rounding to the 4 digit
+
+
     # Convert graph to D3.js compatible format
     data = nx.node_link_data(G)
     return jsonify(data)
+
+def get_betw_value(u, v):
+    global adj_matrix
+    global source
+    global sink
+
+    u -= 1
+    v -= 1
+
+    tempAdjDense = adj_matrix.todense()
+    
+    # Convert adjacency matrix to Laplacian matrix
+    tempLapDense = -copy.deepcopy(tempAdjDense)
+    for ii, irow in enumerate(tempLapDense):
+        tempLapDense[ii, ii] = -np.sum(irow)
+    
+    # Compute pseudoinverse of Laplacian matrix
+    tempLinv = np.linalg.pinv(tempLapDense)
+    
+    # Compute flow betweenness for the given edge
+    v_source_sink_resist1 = tempLinv[u, source] - tempLinv[u, sink]
+    v_source_sink_resist2 = tempLinv[v, source] - tempLinv[v, sink]
+    b_resist1_resist2 = tempAdjDense[u, v] * (v_source_sink_resist1 - v_source_sink_resist2)
+
+    betweenness_score = b_resist1_resist2.item() # Convert to a standard Python type
+    if betweenness_score < 0:
+        betweenness_score *= -1
+
+    return betweenness_score
 
 @app.route('/calculate', methods=['POST'])
 def compute_flow_betweenness():
