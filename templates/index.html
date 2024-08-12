@@ -55,8 +55,16 @@
             const svg = d3.select("svg");
             svg.selectAll("*").remove(); // Clear previous graph
 
-            const width = +svg.attr("width");
-            const height = +svg.attr("height");
+            // Calculate SVG dimensions based on number of nodes and links
+            const numNodes = graph.nodes.length;
+            const numLinks = graph.links.length;
+            
+            // Adjust the width and height as needed
+            const width = Math.max(960, 100 + numNodes * 30);  // Example width calculation
+            const height = Math.max(600, 100 + numNodes * 30); // Example height calculation
+            
+            svg.attr("width", width)
+            .attr("height", height);
 
             // Position the source and sink nodes
             const sourceNode = graph.nodes.find(d => d.id === source_id);
@@ -66,9 +74,9 @@
             if (sinkNode) sinkNode.fx = width - 50; // Fixed x position for sink node
 
             const simulation = d3.forceSimulation(graph.nodes)
-            .force("link", d3.forceLink(graph.links).id(d => d.id).distance(50).strength(1))
-            .force("charge", d3.forceManyBody().strength(-1500))
-            .force("center", d3.forceCenter(width / 2, height / 2))
+                .force("link", d3.forceLink(graph.links).id(d => d.id).distance(50).strength(1))
+                .force("charge", d3.forceManyBody().strength(-1500))
+                .force("center", d3.forceCenter(width / 2, height / 2));
 
             const link = svg.append("g")
                 .attr("class", "links")
@@ -101,13 +109,12 @@
                 .attr("fill", function(d) {
                     if (source_id === d.id) {
                         return "green";
-                    } else if(sink_id === d.id) {
+                    } else if (sink_id === d.id) {
                         return "red";
                     } else {
                         return "blue";
                     }
                 })
-
                 .on("click", function(event, d) {
                     if (resistor_1 === d.id) {
                         resistor_1 = null;
@@ -126,7 +133,7 @@
                     updateCalculateButtonVisibility();
 
                     console.log("Resistor 1 ID:", resistor_1, "Resistor 2 ID:", resistor_2);
-                })
+                });
 
             const labels = node.append("text")
                 .attr("x", 15)
@@ -151,8 +158,8 @@
                     .attr("y2", d => d.target.y);
 
                 linkLabels
-                    .attr("x", d => width - (d.source.x + d.target.x) / 2)
-                    .attr("y", d => height - (d.source.y + d.target.y) / 2);
+                    .attr("x", d => (d.source.x + d.target.x) / 2)
+                    .attr("y", d => (d.source.y + d.target.y) / 2);
 
                 node
                     .attr("transform", d => `translate(${d.x},${d.y})`);
@@ -165,13 +172,11 @@
                 } else {
                     calculateButton.style.display = 'none'; // Hide button
                 }
-            }            
+            }
 
             // Handle Calculate button click
             document.getElementById('calculate-button').onclick = async function() {
                 if (resistor_1 !== null && resistor_2 !== null) {
-                    //alert(`Calculate between nodes ${resistor_1} and ${resistor_2}`);
-                    
                     const resist1Resid = resistor_1;
                     const resist2Resid = resistor_2;
 
@@ -188,6 +193,7 @@
                 }
             };
         }
+
     </script>
 </body>
 </html>
