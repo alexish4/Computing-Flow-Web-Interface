@@ -39,10 +39,9 @@ def upload_file():
     G = nx.relabel_nodes(G, mapping)
 
     for u, v, data in G.edges(data=True):
-        # Calculate a new attribute based on the indices of the source (u) and target (v)
-        # For example, let's create an attribute 'index_diff' as the absolute difference between node indices
+        # Calculate based on the indices of the source (u) and target (v)
         betw = get_betw_value(u, v)
-        data['betw'] = round(betw, 4) #rounding to the 4 digit
+        data['betw'] = round(betw, 3) #rounding to the 4 digit
 
 
     # Convert graph to D3.js compatible format
