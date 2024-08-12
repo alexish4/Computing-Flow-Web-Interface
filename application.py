@@ -17,6 +17,26 @@ sink = 0
 def index():
     return render_template('index.html')
 
+def find_top_k_paths(G, source, sink, k=4):
+    # Priority queue to store paths with their total betweenness value
+    queue = [(0, source, [])]  # (total_betweenness, current_node, path)
+    paths = []
+
+    while queue and len(paths) < k:
+        total_betw, current_node, path = heapq.heappop(queue)
+        path = path + [current_node]
+
+        if current_node == sink:
+            paths.append((total_betw, path))
+            continue
+
+        for neighbor, edge_data in G[current_node].items():
+            if neighbor not in path:  # Avoid cycles
+                edge_betw = edge_data['betw']
+                heapq.heappush(queue, (total_betw + edge_betw, neighbor, path))
+
+    return paths
+
 @app.route('/upload', methods=['POST'])
 def upload_file():
     global adj_matrix
@@ -38,11 +58,19 @@ def upload_file():
     mapping = {i: i + 1 for i in range(adj_matrix.shape[0])}
     G = nx.relabel_nodes(G, mapping)
 
+    betw_data = []
     for u, v, data in G.edges(data=True):
         # Calculate based on the indices of the source (u) and target (v)
         betw = get_betw_value(u, v)
         data['betw'] = round(betw, 3) #rounding to the 4 digit
+        betw_data.append((u, v, data['betw']))
 
+    # Create an adjacency matrix based on the betweenness values
+    rows_betw, cols_betw, betw_values = zip(*betw_data)
+    adj_matrix_betw = coo_matrix((betw_values, (rows_betw, cols_betw)), shape=adj_matrix.shape)
+
+    # Find the top 4 optimal paths from source to sink
+    top_paths = find_top_k_paths(G, source, sink)
 
     # Convert graph to D3.js compatible format
     data = nx.node_link_data(G)
