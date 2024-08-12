@@ -70,8 +70,8 @@
             const sourceNode = graph.nodes.find(d => d.id === source_id);
             const sinkNode = graph.nodes.find(d => d.id === sink_id);
 
-            if (sourceNode) sourceNode.fx = 50; // Fixed x position for source node
-            if (sinkNode) sinkNode.fx = width - 50; // Fixed x position for sink node
+            if (sourceNode) sourceNode.fx = 200; // Fixed x position for source node
+            if (sinkNode) sinkNode.fx = width - 200; // Fixed x position for sink node
 
             const simulation = d3.forceSimulation(graph.nodes)
                 .force("link", d3.forceLink(graph.links).id(d => d.id).distance(50).strength(1))
