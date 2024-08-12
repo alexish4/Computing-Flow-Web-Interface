@@ -19,8 +19,16 @@
         <br>
         <button type="submit">Submit</button>
     </form>
+    <br>
+    <label id="source-node-label" style="display: none; color: green;">Source Node: </label>
+    <br>
+    <label id="sink-node-label" style="display: none; color: red;">Sink Node: </label>
+    <br>
+    <br>
+    <label id="directions-label" style="display: none;">Choose 2 Resistors to Calculate Betweenness </label>
     <svg width="960" height="600"></svg>
     <button id="calculate-button" style="display: none;">Calculate</button> <!-- Initially hidden -->
+
     <pre id="output"></pre>
     <script>
         let resistor_1 = null;
@@ -48,7 +56,10 @@
                 body: formData
             })
             .then(response => response.json())
-            .then(data => drawGraph(data));
+            .then(data => {
+                updateSourceNodeLabel(source_id, sink_id);
+                drawGraph(data);
+            }); 
         };
 
         function drawGraph(graph) {
@@ -192,6 +203,20 @@
                     document.getElementById('output').textContent = JSON.stringify(result, null, 2);
                 }
             };
+        }
+        // Function to update the source node label
+        function updateSourceNodeLabel(source_num, sink_num) {
+            const sourceNodeLabel = document.getElementById('source-node-label');
+            const sinkNodeLabel = document.getElementById('sink-node-label');
+            const dirLabel = document.getElementById('directions-label');
+            sourceNodeLabel.textContent = `Source Node: ${source_num}`;
+            sinkNodeLabel.textContent = `Sink Node: ${sink_num}`;
+            
+            // Show the label
+            sourceNodeLabel.style.display = 'inline';
+            sinkNodeLabel.style.display = 'inline'; 
+            dirLabel.style.display = 'inline';
+
         }
 
     </script>
