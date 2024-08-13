@@ -4,6 +4,35 @@
     <meta charset="UTF-8">
     <title>Graph Visualization</title>
     <script src="https://d3js.org/d3.v7.min.js"></script>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            margin: 0;
+            padding: 0;
+        }
+        h1 {
+            text-align: center;
+        }
+        #upload-form {
+            text-align: center;
+            margin-top: 20px;
+        }
+        svg {
+            display: block;
+            margin: auto;
+        }
+        #top-paths {
+            margin-top: 20px;
+        }
+        #output {
+            white-space: pre-wrap; /* Preserve whitespace formatting */
+            margin: 20px;
+        }
+        #calculate-button {
+            display: block;
+            margin: 20px auto;
+        }
+    </style>
 </head>
 <body>
     <h1>Graph Visualization</h1>
@@ -20,12 +49,15 @@
         <button type="submit">Submit</button>
     </form>
     <br>
-    <label id="source-node-label" style="display: none; color: green;">Source Node: </label>
-    <br>
-    <label id="sink-node-label" style="display: none; color: red;">Sink Node: </label>
-    <br>
-    <br>
-    <label id="directions-label" style="display: none;">Choose 2 Resistors to Calculate Betweenness </label>
+    <div id="label-container" style="text-align: center;">
+        <label id="source-node-label" style="display: none; color: green;">Source Node: </label>
+        <br>
+        <label id="sink-node-label" style="display: none; color: red;">Sink Node: </label>
+        <br>
+        <br>
+        <label id="directions-label" style="display: none;">Choose 2 Resistors to Calculate Betweenness</label>
+    </div>
+    
     <svg width="960" height="600"></svg>
     <button id="calculate-button" style="display: none;">Calculate</button> <!-- Initially hidden -->
 
