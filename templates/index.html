@@ -30,6 +30,10 @@
     <button id="calculate-button" style="display: none;">Calculate</button> <!-- Initially hidden -->
 
     <pre id="output"></pre>
+
+    <h2>Top 4 Paths</h2>
+    <div id="top-paths"></div>
+
     <script>
         let resistor_1 = null;
         let resistor_2 = null;
@@ -58,7 +62,8 @@
             .then(response => response.json())
             .then(data => {
                 updateSourceNodeLabel(source_id, sink_id);
-                drawGraph(data);
+                displayTopPaths(data.top_paths); // Display the top paths
+                drawGraph(data.graph_data);
             }); 
         };
 
@@ -204,6 +209,19 @@
                 }
             };
         }
+
+        function displayTopPaths(paths) {
+            const container = d3.select('#top-paths');
+            container.selectAll("*").remove(); // Clear previous paths
+
+            paths.forEach((path, index) => {
+                // Increment the node indices by 1 and format them for display
+                const formattedNodes = path.nodes.map(node => node + 1).join(' -> ');
+                container.append("div")
+                    .text(`Path ${index + 1}: Total Betweenness: ${path.total_betw}, Path: ${formattedNodes}`);
+            });
+        }
+
         // Function to update the source node label
         function updateSourceNodeLabel(source_num, sink_num) {
             const sourceNodeLabel = document.getElementById('source-node-label');

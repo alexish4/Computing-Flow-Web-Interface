@@ -69,9 +69,18 @@ def upload_file():
     top_paths = find_top_k_paths(G, source, sink)
     print (top_paths)
 
-    # Convert graph to D3.js compatible format
-    data = nx.node_link_data(G)
-    return jsonify(data)
+    # Convert top_paths to a format that is easy to send to the front-end
+    top_paths_data = [
+        {'total_betw': path[0], 'nodes': path[1]}
+        for path in top_paths[:4]  # Limit to top 4 paths
+    ]
+
+    response_data = {
+        'graph_data': nx.node_link_data(G),
+        'top_paths': top_paths_data
+    }
+    
+    return jsonify(response_data)
 
 def get_betw_value(u, v):
     global adj_matrix
