@@ -101,8 +101,12 @@
             .then(response => response.json())
             .then(data => {
                 updateSourceNodeLabel(source_id, sink_id);
-                displayTopPaths(data.top_paths); // Display the top paths
+                displayTopPaths(data.top_paths); // Display the top paths0                                
                 drawGraph(data.graph_data);
+
+                // Draw the color scale
+                const maxBetw = Math.max(...topPaths.map(p => p.total_betw));
+                drawColorScale(maxBetw);
             }); 
         };
 
@@ -149,12 +153,16 @@
                     });
 
                     if (inTopPath) {
-                        // Calculate the redness based on the path's total_betw
-                        const pathBetw = topPaths.find(path => path.nodes.includes(d.source.id) && path.nodes.includes(d.target.id)).total_betw;
-                        const redness = pathBetw / maxBetw;
-                        return d3.interpolateReds(redness);
+                        // Find the path that contains this link
+                        const path = topPaths.find(path => {
+                            return path.nodes.includes(d.source.id) && path.nodes.includes(d.target.id);
+                        });
+
+                        // Determine the color intensity based on total_betw
+                        const intensity = path ? path.total_betw / maxBetw : 0;
+                        return d3.interpolateReds(intensity);
                     } else {
-                        return "#999";
+                        return "lightgrey";
                     }
                 });
 
@@ -295,6 +303,62 @@
             dirLabel.style.display = 'inline';
             colorButton.style.display = 'inline';
 
+        }
+
+        function drawColorScale(maxBetw) {
+            const svg = d3.select("svg");
+            
+            // Remove any existing color scales
+            svg.selectAll(".color-scale").remove();
+            
+            // Define dimensions and position for the color scale
+            const width = 20;
+            const height = 300;
+            const x = svg.attr("width") - 60; // Positioning on the right side
+            const y = 50;
+            
+            // Create a group for the color scale
+            const colorScaleGroup = svg.append("g")
+                .attr("class", "color-scale")
+                .attr("transform", `translate(${x}, ${y})`);
+            
+            // Define the gradient
+            const gradient = colorScaleGroup.append("defs")
+                .append("linearGradient")
+                .attr("id", "color-gradient")
+                .attr("x1", "0%")
+                .attr("y1", "100%")
+                .attr("x2", "0%")
+                .attr("y2", "0%");
+            
+            gradient.append("stop")
+                .attr("offset", "0%")
+                .attr("stop-color", d3.interpolateReds(0)); // Lightest
+            
+            gradient.append("stop")
+                .attr("offset", "100%")
+                .attr("stop-color", d3.interpolateReds(1)); // Darkest
+            
+            // Draw the rectangle filled with the gradient
+            colorScaleGroup.append("rect")
+                .attr("width", width)
+                .attr("height", height)
+                .style("fill", "url(#color-gradient)");
+            
+            // Define the scale for the color scale's axis
+            const scale = d3.scaleLinear()
+                .domain([0, maxBetw])
+                .range([height, 0]);
+            
+            // Define the axis for the color scale
+            const axis = d3.axisRight(scale)
+                .ticks(6); // Adjust the number of ticks as needed
+            
+            // Draw the axis
+            colorScaleGroup.append("g")
+                .attr("class", "axis")
+                .attr("transform", `translate(${width}, 0)`)
+                .call(axis);
         }
 
     </script>
