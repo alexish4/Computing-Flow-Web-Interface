@@ -251,10 +251,25 @@
             container.selectAll("*").remove(); // Clear previous paths
 
             paths.forEach((path, index) => {
+                // Create a div to hold the path information and button
+                const pathDiv = container.append("div")
+                    .style("display", "flex") // Use flexbox for horizontal alignment
+                    .style("align-items", "center") // Center items vertically
+                    .style("margin-bottom", "10px"); // Optional: Add space between rows
+
                 // Increment the node indices by 1 and format them for display
                 const formattedNodes = path.nodes.map(node => node + 1).join(' -> ');
-                container.append("div")
-                    .text(`Path ${index + 1}: Total Betweenness: ${path.total_betw}, Path: ${formattedNodes}`);
+                pathDiv.append("div")
+                    .text(`Path ${index + 1}: Total Betweenness: ${path.total_betw}, Path: ${formattedNodes}`)
+                    .style("margin-right", "10px"); // Optional: Add space between text and button
+                
+                // Add a button to the div
+                pathDiv.append("button")
+                    .text("Highlight") // Change this text to whatever you want the button to display
+                    .on("click", () => {
+                        // Define what should happen when the button is clicked
+                        alert(`Button for Path ${index + 1} clicked!`);
+                    });
             });
         }
 
