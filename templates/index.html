@@ -60,6 +60,7 @@
     
     <svg width="960" height="600"></svg>
     <button id="calculate-button" style="display: none;">Calculate</button> <!-- Initially hidden -->
+    <button id="color-edges-button" style="display: none;">Color Edges</button>
 
     <pre id="output"></pre>
 
@@ -251,25 +252,10 @@
             container.selectAll("*").remove(); // Clear previous paths
 
             paths.forEach((path, index) => {
-                // Create a div to hold the path information and button
-                const pathDiv = container.append("div")
-                    .style("display", "flex") // Use flexbox for horizontal alignment
-                    .style("align-items", "center") // Center items vertically
-                    .style("margin-bottom", "10px"); // Optional: Add space between rows
-
                 // Increment the node indices by 1 and format them for display
                 const formattedNodes = path.nodes.map(node => node + 1).join(' -> ');
-                pathDiv.append("div")
-                    .text(`Path ${index + 1}: Total Betweenness: ${path.total_betw}, Path: ${formattedNodes}`)
-                    .style("margin-right", "10px"); // Optional: Add space between text and button
-                
-                // Add a button to the div
-                pathDiv.append("button")
-                    .text("Highlight") // Change this text to whatever you want the button to display
-                    .on("click", () => {
-                        // Define what should happen when the button is clicked
-                        alert(`Button for Path ${index + 1} clicked!`);
-                    });
+                container.append("div")
+                    .text(`Path ${index + 1}: Total Betweenness: ${path.total_betw}, Path: ${formattedNodes}`);
             });
         }
 
@@ -278,6 +264,7 @@
             const sourceNodeLabel = document.getElementById('source-node-label');
             const sinkNodeLabel = document.getElementById('sink-node-label');
             const dirLabel = document.getElementById('directions-label');
+            const colorButton = document.getElementById('color-edges-button');
             sourceNodeLabel.textContent = `Source Node: ${source_num + 1}`;
             sinkNodeLabel.textContent = `Sink Node: ${sink_num + 1}`;
             
@@ -285,6 +272,7 @@
             sourceNodeLabel.style.display = 'inline';
             sinkNodeLabel.style.display = 'inline'; 
             dirLabel.style.display = 'inline';
+            colorButton.style.display = 'inline';
 
         }
 
