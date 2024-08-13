@@ -59,18 +59,13 @@ def upload_file():
     mapping = {i: i for i in range(adj_matrix.shape[0])}
     G = nx.relabel_nodes(G, mapping)
 
-    betw_data = []
+    # Each edge will also have betweenness score
     for u, v, data in G.edges(data=True):
         # Calculate based on the indices of the source (u) and target (v)
         betw = get_betw_value(u, v)
-        data['betw'] = round(betw, 3) #rounding to the 4 digit
-        betw_data.append((u, v, data['betw']))
+        data['betw'] = betw 
 
-    # Create an adjacency matrix based on the betweenness values
-    # rows_betw, cols_betw, betw_values = zip(*betw_data)
-    # adj_matrix_betw = coo_matrix((betw_values, (rows_betw, cols_betw)), shape=adj_matrix.shape)
-
-    # # Find the top 4 optimal paths from source to sink
+    # Find the top 4 optimal paths from source to sink
     top_paths = find_top_k_paths(G, source, sink)
     print (top_paths)
 
