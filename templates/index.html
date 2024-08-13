@@ -44,8 +44,8 @@
             const sourceResid = document.getElementById('source-resid').value;
             const sinkResid = document.getElementById('sink-resid').value;
 
-            source_id = parseInt(document.getElementById('source-resid').value);
-            sink_id = parseInt(document.getElementById('sink-resid').value);
+            source_id = parseInt(document.getElementById('source-resid').value) - 1;
+            sink_id = parseInt(document.getElementById('sink-resid').value) - 1;
             
             const formData = new FormData();
             formData.append('file', fileInput.files[0]);
@@ -152,7 +152,7 @@
                 .attr("fill", "black")
                 .attr("font-size", "12px")
                 .attr("text-anchor", "middle")
-                .text(d => d.id);
+                .text(d => d.id + 1);
 
             simulation
                 .nodes(graph.nodes)

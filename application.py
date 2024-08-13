@@ -6,6 +6,7 @@ import copy
 import os
 import networkx as nx
 import pandas as pd
+import heapq
 
 app=Flask(__name__)
 
@@ -55,7 +56,7 @@ def upload_file():
     G = nx.from_scipy_sparse_array(adj_matrix)
 
     # label nodes to match their index in the adjacency matrix
-    mapping = {i: i + 1 for i in range(adj_matrix.shape[0])}
+    mapping = {i: i for i in range(adj_matrix.shape[0])}
     G = nx.relabel_nodes(G, mapping)
 
     betw_data = []
@@ -66,11 +67,12 @@ def upload_file():
         betw_data.append((u, v, data['betw']))
 
     # Create an adjacency matrix based on the betweenness values
-    rows_betw, cols_betw, betw_values = zip(*betw_data)
-    adj_matrix_betw = coo_matrix((betw_values, (rows_betw, cols_betw)), shape=adj_matrix.shape)
+    # rows_betw, cols_betw, betw_values = zip(*betw_data)
+    # adj_matrix_betw = coo_matrix((betw_values, (rows_betw, cols_betw)), shape=adj_matrix.shape)
 
-    # Find the top 4 optimal paths from source to sink
+    # # Find the top 4 optimal paths from source to sink
     top_paths = find_top_k_paths(G, source, sink)
+    print (top_paths)
 
     # Convert graph to D3.js compatible format
     data = nx.node_link_data(G)
@@ -80,9 +82,6 @@ def get_betw_value(u, v):
     global adj_matrix
     global source
     global sink
-
-    u -= 1
-    v -= 1
 
     tempAdjDense = adj_matrix.todense()
     
@@ -111,8 +110,8 @@ def compute_flow_betweenness():
     global source
     global sink
 
-    resist_1 = int(request.form['resist1']) - 1
-    resist_2 = int(request.form['resist2']) - 1
+    resist_1 = int(request.form['resist1'])
+    resist_2 = int(request.form['resist2'])
     
     tempAdjDense = adj_matrix.todense()
     
@@ -136,6 +135,6 @@ def compute_flow_betweenness():
     return jsonify({'betweenness_score': betweenness_score})
 
 if __name__ == '__main__':
-    #app.run(debug=True)
-    port = int(os.environ.get("PORT", 5000))
-    app.run(host='0.0.0.0', port=port)
+    app.run(debug=True)
+    # port = int(os.environ.get("PORT", 5000))
+    # app.run(host='0.0.0.0', port=port)
