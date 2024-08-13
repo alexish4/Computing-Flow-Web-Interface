@@ -103,10 +103,8 @@
                 updateSourceNodeLabel(source_id, sink_id);
                 displayTopPaths(data.top_paths); // Display the top paths0                                
                 drawGraph(data.graph_data);
-
-                // Draw the color scale
-                const maxBetw = Math.max(...topPaths.map(p => p.total_betw));
-                drawColorScale(maxBetw);
+                colorEdges();
+                drawColorScale();
             }); 
         };
 
@@ -143,28 +141,7 @@
                 .data(graph.links)
                 .enter().append("line")
                 .attr("stroke-width", 2)
-                .attr("stroke", function(d) {
-                    // Find the max total_betw in topPaths for normalization
-                    const maxBetw = Math.max(...topPaths.map(p => p.total_betw));
-                    
-                    // Check if the link is in one of the top paths
-                    const inTopPath = topPaths.some(path => {
-                        return path.nodes.includes(d.source.id) && path.nodes.includes(d.target.id);
-                    });
-
-                    if (inTopPath) {
-                        // Find the path that contains this link
-                        const path = topPaths.find(path => {
-                            return path.nodes.includes(d.source.id) && path.nodes.includes(d.target.id);
-                        });
-
-                        // Determine the color intensity based on total_betw
-                        const intensity = path ? path.total_betw / maxBetw : 0;
-                        return d3.interpolateReds(intensity);
-                    } else {
-                        return "lightgrey";
-                    }
-                });
+                .attr("stroke", "#999");
 
             // Label edges with weights
             const linkLabels = svg.append("g")
@@ -317,7 +294,7 @@
                 .attr("stroke", d => colorScale(d.betw)); // Set stroke color based on betweenness
         }
 
-        function drawColorScale(maxBetw) {
+        function drawColorScale() {
             const svg = d3.select("svg");
             
             // Remove any existing color scales
@@ -359,7 +336,7 @@
             
             // Define the scale for the color scale's axis
             const scale = d3.scaleLinear()
-                .domain([0, maxBetw])
+                .domain([0, 1])
                 .range([height, 0]);
             
             // Define the axis for the color scale
