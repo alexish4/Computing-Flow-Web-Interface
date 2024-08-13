@@ -74,6 +74,8 @@
         let source_id = null;
         let sink_id = null;
 
+        let topPaths = [];
+
         document.getElementById('upload-form').onsubmit = function(e) {
             e.preventDefault();
             
@@ -137,7 +139,24 @@
                 .data(graph.links)
                 .enter().append("line")
                 .attr("stroke-width", 2)
-                .attr("stroke", "#999");
+                .attr("stroke", function(d) {
+                    // Find the max total_betw in topPaths for normalization
+                    const maxBetw = Math.max(...topPaths.map(p => p.total_betw));
+                    
+                    // Check if the link is in one of the top paths
+                    const inTopPath = topPaths.some(path => {
+                        return path.nodes.includes(d.source.id) && path.nodes.includes(d.target.id);
+                    });
+
+                    if (inTopPath) {
+                        // Calculate the redness based on the path's total_betw
+                        const pathBetw = topPaths.find(path => path.nodes.includes(d.source.id) && path.nodes.includes(d.target.id)).total_betw;
+                        const redness = pathBetw / maxBetw;
+                        return d3.interpolateReds(redness);
+                    } else {
+                        return "#999";
+                    }
+                });
 
             // Label edges with weights
             const linkLabels = svg.append("g")
@@ -248,13 +267,15 @@
         }
 
         function displayTopPaths(paths) {
-            const container = d3.select('#top-paths');
-            container.selectAll("*").remove(); // Clear previous paths
+            topPaths = paths;
+            
+            const topPathsContainer = d3.select('#top-paths');
+            topPathsContainer.innerHTML = '';
 
             paths.forEach((path, index) => {
                 // Increment the node indices by 1 and format them for display
                 const formattedNodes = path.nodes.map(node => node + 1).join(' -> ');
-                container.append("div")
+                topPathsContainer.append("div")
                     .text(`Path ${index + 1}: Total Betweenness: ${path.total_betw}, Path: ${formattedNodes}`);
             });
         }
