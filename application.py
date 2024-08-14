@@ -49,12 +49,13 @@ def process_dat_file(file):
         for j in range(num_nodes):
             if i != j:  # Exclude self-loops
                 mutual_info = data[i, j]
-                weight = -np.log(1 - mutual_info)  # Adjusted weight calculation
-                if not np.isnan(weight) and not np.isinf(weight):  # Filter invalid weights
-                    # Add both (i, j) and (j, i) to ensure bidirectional edges
-                    rows.extend([i, j])
-                    cols.extend([j, i])
-                    weights.extend([weight, weight])
+                if mutual_info > 0:
+                    weight = -np.log(1 - mutual_info)  # Adjusted weight calculation
+                    if not np.isnan(weight) and not np.isinf(weight):  # Filter invalid weights
+                        # Add both (i, j) and (j, i) to ensure bidirectional edges
+                        rows.extend([i, j])
+                        cols.extend([j, i])
+                        weights.extend([weight, weight])
 
     return rows, cols, weights
 
@@ -69,9 +70,16 @@ def upload_file():
     source = int(request.form['source']) - 1
     sink = int(request.form['sink']) - 1
     
-    data = np.loadtxt(file, delimiter=',')
-    rows, cols, weights = data[:, 0].astype(int), data[:, 1].astype(int), data[:, 2]
+    if file.filename.endswith('.csv'):
+        data = np.loadtxt(file, delimiter=',')
+        rows, cols, weights = data[:, 0].astype(int), data[:, 1].astype(int), data[:, 2]
+    elif file.filename.endswith('.dat'):
+        rows, cols, weights = process_dat_file(file)
+    else:
+        return jsonify({'error': 'Unsupported file format'}), 400
+
     adj_matrix = coo_matrix((weights, (rows, cols)))
+    print(adj_matrix)
 
      # Create graph
     G = nx.from_scipy_sparse_array(adj_matrix)
