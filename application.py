@@ -18,7 +18,7 @@ sink = 0
 def index():
     return render_template('index.html')
 
-def find_top_k_paths(G, source, sink, k=4):
+def find_top_k_paths(G, source, sink, k=10):
     # Priority queue to store paths with their total betweenness value
     queue = [(0, source, [])]  # (total_betweenness, current_node, path)
     paths = []
@@ -69,12 +69,11 @@ def upload_file():
         #also want largest betweenness value
         if largest_betweenness < betw:
             largest_betweenness = betw
-    print(largest_betweenness, " is largest betweenness")
 
     # Find the top 4 optimal paths from source to sink
     top_paths = find_top_k_paths(G, source, sink)
     top_paths = top_paths[::-1] #reversing order
-    print (top_paths)
+    print (len(top_paths), " is length of top paths")
 
     # Convert top_paths to a format that is easy to send to the front-end
     top_paths_data = [

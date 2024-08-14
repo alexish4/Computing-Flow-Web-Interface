@@ -277,9 +277,40 @@
                     .text("Highlight") // Change this text to whatever you want the button to display
                     .on("click", () => {
                         // Define what should happen when the button is clicked
-                        alert(`Button for Path ${index + 1} clicked!`);
+                        //alert(`Button for Path ${index + 1} clicked!`);
+                        highlightPathEdges(path);
                     });
             });
+        }
+
+        function highlightPathEdges(path) {
+            // Convert the path's nodes into a set of edges
+            const edges = [];
+            for (let i = 0; i < path.nodes.length - 1; i++) {
+                edges.push({
+                    source: path.nodes[i],
+                    target: path.nodes[i + 1]
+                });
+            }
+
+            // Update the styles of the links to highlight the edges in the path
+            d3.selectAll(".links line")
+                .attr("stroke", d => {
+                    // Check if the current link is part of the highlighted path
+                    const isHighlighted = edges.some(edge =>
+                        (d.source.id === edge.source && d.target.id === edge.target) ||
+                        (d.source.id === edge.target && d.target.id === edge.source)
+                    );
+                    return isHighlighted ? "orange" : "#999";
+                })
+                .attr("stroke-width", d => {
+                    // Increase the stroke width for highlighted edges
+                    const isHighlighted = edges.some(edge =>
+                        (d.source.id === edge.source && d.target.id === edge.target) ||
+                        (d.source.id === edge.target && d.target.id === edge.source)
+                    );
+                    return isHighlighted ? 4 : 2;
+                });
         }
 
         // Function to update the source node label
