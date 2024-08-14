@@ -38,6 +38,27 @@ def find_top_k_paths(G, source, sink, k=10):
 
     return paths
 
+def process_dat_file(file):
+    data = np.loadtxt(file)
+    num_nodes = data.shape[0]
+    rows = []
+    cols = []
+    weights = []
+
+    for i in range(num_nodes):
+        for j in range(num_nodes):
+            if i != j:  # Exclude self-loops
+                mutual_info = data[i, j]
+                weight = -np.log(1 - mutual_info)  # Adjusted weight calculation
+                if not np.isnan(weight) and not np.isinf(weight):  # Filter invalid weights
+                    # Add both (i, j) and (j, i) to ensure bidirectional edges
+                    rows.extend([i, j])
+                    cols.extend([j, i])
+                    weights.extend([weight, weight])
+
+    return rows, cols, weights
+
+
 @app.route('/upload', methods=['POST'])
 def upload_file():
     global adj_matrix
@@ -146,6 +167,6 @@ def compute_flow_betweenness():
     return jsonify({'betweenness_score': betweenness_score})
 
 if __name__ == '__main__':
-    #app.run(debug=True)
-    port = int(os.environ.get("PORT", 5000))
-    app.run(host='0.0.0.0', port=port)
+    app.run(debug=True)
+    # port = int(os.environ.get("PORT", 5000))
+    # app.run(host='0.0.0.0', port=port)

@@ -36,9 +36,9 @@
 </head>
 <body>
     <h1>Graph Visualization</h1>
-    <form id="upload-form">
+    <form id="upload-form" enctype="multipart/form-data">
         <label for="csv-file">Upload CSV File:</label>
-        <input type="file" id="csv-file" accept=".csv">
+        <input type="file" id="csv-file" accept=".csv, .dat">
         <br>
         <label for="source-resid">Source Residue ID:</label>
         <input type="number" id="source-resid">
@@ -253,9 +253,6 @@
             };
             document.getElementById('refresh-button').onclick = async function() {
                 setupColorScaleAndEdges();
-                            //resetting resistor values
-            resistor_1 = null
-            resistor_2 = null
             };
 
         }        
