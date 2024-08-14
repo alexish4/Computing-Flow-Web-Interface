@@ -75,6 +75,7 @@
         let sink_id = null;
 
         let topPaths = [];
+        let large_bet = 0;
 
         document.getElementById('upload-form').onsubmit = function(e) {
             e.preventDefault();
@@ -100,10 +101,11 @@
             })
             .then(response => response.json())
             .then(data => {
+                large_bet = data.largest_betweenness;
                 updateSourceNodeLabel(source_id, sink_id);
                 displayTopPaths(data.top_paths); // Display the top paths0                                
                 drawGraph(data.graph_data);
-                colorEdges();
+                setupColorScaleAndEdges();
                 drawColorScale();
             }); 
         };
@@ -283,15 +285,21 @@
 
         }
 
-        // Define the color scale
-        const colorScale = d3.scaleLinear()
-            .domain([0, 1]) // Using the maximum edge frequency
-            .range(["black", "red"]); // Low frequency -> black, High frequency -> red
+        function setupColorScaleAndEdges() {
+            // Define the color scale
+            const colorScale = d3.scaleLinear()
+                .domain([0, large_bet]) // Using the maximum edge frequency
+                .range(["black", "red"]); // Low frequency -> black, High frequency -> red
 
-        // Implement the colorEdges Function
-        function colorEdges() {
-            d3.selectAll(".links line") // Select all line elements in the links group
-                .attr("stroke", d => colorScale(d.betw)); // Set stroke color based on betweenness
+            // Implement the colorEdges Function
+            function colorEdges() {
+                console.log("Color scale domain:", colorScale.domain());
+                console.log("Color scale range:", colorScale.range());
+
+                d3.selectAll(".links line") // Select all line elements in the links group
+                    .attr("stroke", d => colorScale(d.betw)); // Set stroke color based on betweenness
+            }
+            colorEdges();
         }
 
         function drawColorScale() {
@@ -336,7 +344,7 @@
             
             // Define the scale for the color scale's axis
             const scale = d3.scaleLinear()
-                .domain([0, 1])
+                .domain([0, large_bet])
                 .range([height, 0]);
             
             // Define the axis for the color scale

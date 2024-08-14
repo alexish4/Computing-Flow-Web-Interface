@@ -60,10 +60,16 @@ def upload_file():
     G = nx.relabel_nodes(G, mapping)
 
     # Each edge will also have betweenness score
+    largest_betweenness = 0
     for u, v, data in G.edges(data=True):
         # Calculate based on the indices of the source (u) and target (v)
         betw = get_betw_value(u, v)
         data['betw'] = betw 
+
+        #also want largest betweenness value
+        if largest_betweenness < betw:
+            largest_betweenness = betw
+    print(largest_betweenness, " is largest betweenness")
 
     # Find the top 4 optimal paths from source to sink
     top_paths = find_top_k_paths(G, source, sink)
@@ -78,7 +84,8 @@ def upload_file():
 
     response_data = {
         'graph_data': nx.node_link_data(G),
-        'top_paths': top_paths_data
+        'top_paths': top_paths_data,
+        'largest_betweenness': largest_betweenness
     }
     
     return jsonify(response_data)
