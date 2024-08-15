@@ -98,6 +98,7 @@ def upload_file():
         #also want largest betweenness value
         if largest_betweenness < betw:
             largest_betweenness = betw
+    print(largest_betweenness, " is largest betweenness")
 
     # Find the top 4 optimal paths from source to sink
     top_paths = find_top_k_paths(G, source, sink)
