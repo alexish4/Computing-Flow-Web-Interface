@@ -24,21 +24,19 @@ def process_dat_file(file):
     num_nodes = data.shape[0]
     rows = []
     cols = []
-    weights = []
+    correlations = []
 
     for i in range(num_nodes):
         for j in range(num_nodes):
             if i != j:  # Exclude self-loops
                 mutual_info = data[i, j]
-                if mutual_info > 0:
-                    weight = -np.log(mutual_info)  # Adjusted weight calculation
-                    if not np.isnan(weight) and not np.isinf(weight):  # Filter invalid weights
-                        # Add both (i, j) and (j, i) to ensure bidirectional edges
-                        rows.extend([i, j])
-                        cols.extend([j, i])
-                        weights.extend([weight, weight])
+                if mutual_info > 0 and not np.isnan(mutual_info) and not np.isinf(mutual_info):  # Filter invalid weights:
+                    # Add both (i, j) and (j, i) to ensure bidirectional edges
+                    rows.extend([i, j])
+                    cols.extend([j, i])
+                    correlations.extend([mutual_info, mutual_info])
 
-    return rows, cols, weights
+    return rows, cols, correlations
 
 
 @app.route('/upload', methods=['POST'])
@@ -53,13 +51,13 @@ def upload_file():
     
     if file.filename.endswith('.csv'):
         data = np.loadtxt(file, delimiter=',')
-        rows, cols, weights = data[:, 0].astype(int), data[:, 1].astype(int), data[:, 2]
+        rows, cols, correlations = data[:, 0].astype(int), data[:, 1].astype(int), data[:, 2]
     elif file.filename.endswith('.dat'):
-        rows, cols, weights = process_dat_file(file)
+        rows, cols, correlations = process_dat_file(file)
     else:
         return jsonify({'error': 'Unsupported file format'}), 400
 
-    adj_matrix = coo_matrix((weights, (rows, cols)))
+    adj_matrix = coo_matrix((correlations, (rows, cols)))
     print(adj_matrix)
 
      # Create graph
@@ -167,6 +165,6 @@ def compute_flow_betweenness():
     return jsonify({'betweenness_score': betweenness_score})
 
 if __name__ == '__main__':
-    #app.run(debug=True)
-    port = int(os.environ.get("PORT", 5000))
-    app.run(host='0.0.0.0', port=port)
+    app.run(debug=True)
+    # port = int(os.environ.get("PORT", 5000))
+    # app.run(host='0.0.0.0', port=port)
