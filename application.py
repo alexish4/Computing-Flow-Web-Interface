@@ -101,19 +101,19 @@ def upload_file():
     print(largest_betweenness, " is largest betweenness")
 
     # Find the top 4 optimal paths from source to sink
-    top_paths = find_top_k_paths(G, source, sink)
-    top_paths = top_paths[::-1] #reversing order
-    print (len(top_paths), " is length of top paths")
+    # top_paths = find_top_k_paths(G, source, sink)
+    # top_paths = top_paths[::-1] #reversing order
+    # print (len(top_paths), " is length of top paths")
 
-    # Convert top_paths to a format that is easy to send to the front-end
-    top_paths_data = [
-        {'total_betw': path[0], 'nodes': path[1]}
-        for path in top_paths[:4]  # Limit to top 4 paths
-    ]
+    # # Convert top_paths to a format that is easy to send to the front-end
+    # top_paths_data = [
+    #     {'total_betw': path[0], 'nodes': path[1]}
+    #     for path in top_paths[:4]  # Limit to top 4 paths
+    # ]
 
     response_data = {
         'graph_data': nx.node_link_data(G),
-        'top_paths': top_paths_data,
+        #'top_paths': top_paths_data,
         'largest_betweenness': largest_betweenness
     }
     
@@ -176,6 +176,6 @@ def compute_flow_betweenness():
     return jsonify({'betweenness_score': betweenness_score})
 
 if __name__ == '__main__':
-    app.run(debug=True)
-    # port = int(os.environ.get("PORT", 5000))
-    # app.run(host='0.0.0.0', port=port)
+    #app.run(debug=True)
+    port = int(os.environ.get("PORT", 5000))
+    app.run(host='0.0.0.0', port=port)
