@@ -50,7 +50,7 @@ def process_dat_file(file):
             if i != j:  # Exclude self-loops
                 mutual_info = data[i, j]
                 if mutual_info > 0:
-                    weight = -np.log(1 - mutual_info)  # Adjusted weight calculation
+                    weight = -np.log(mutual_info)  # Adjusted weight calculation
                     if not np.isnan(weight) and not np.isinf(weight):  # Filter invalid weights
                         # Add both (i, j) and (j, i) to ensure bidirectional edges
                         rows.extend([i, j])
