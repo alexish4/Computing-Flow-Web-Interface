@@ -290,7 +290,7 @@
                 const formattedNodes = path.nodes.map(node => node + 1).join(" -> ");
                 
                 pathDiv.append("div")
-                    .text(`Path ${index + 1}: Total Betweenness: ${path.total_betw}, Path: ${formattedNodes}`)
+                    .text(`Path ${index + 1}: Total Betweenness: ${path.edge_length}, Path: ${formattedNodes}`)
                     .style("margin-right", "10px"); // Optional: Add space between text and button
 
                 // Add a button to the div

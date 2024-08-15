@@ -85,23 +85,22 @@ def upload_file():
     print(largest_betweenness, " is largest betweenness")
 
     # Find the top 4 optimal paths from source to sink
-    top_paths = list(islice(nx.shortest_simple_paths(G, source, sink, "betw"), 4))
-    top_paths = top_paths[::-1]
+    top_paths = list(islice(nx.shortest_simple_paths(G, source, sink, "edge_length"), 4))
     
     #calculate path length
     path_lengths_edge_weights = []
     for path in top_paths:
         path_length = 0
         for i in range(len(path) - 1):
-            path_length += G[path[i]][path[i + 1]]["betw"]
+            path_length += G[path[i]][path[i + 1]]["edge_length"]
         path_lengths_edge_weights.append(path_length)
     print(top_paths)
 
     # Create the top_paths_data using path_lengths_edge_weights and top_paths_2
     top_paths_data = [
-        {'total_betw': path_lengths_edge_weights[i], 'nodes': top_paths[i]}
+        {'edge_length': path_lengths_edge_weights[i], 'nodes': top_paths[i]}
         for i in range(len(top_paths))  # Limit to top 4 paths
-]
+    ]
 
     response_data = {
         'graph_data': nx.node_link_data(G),
