@@ -119,9 +119,12 @@
             const numLinks = graph.links.length;
             
             // Adjust the width and height as needed
-            const width = Math.max(960, 100 + numNodes * 30);  // Example width calculation
-            const height = Math.max(600, 100 + numNodes * 30); // Example height calculation
+            const width = Math.max(960, 100 + numNodes * 3);  // Example width calculation
+            const height = Math.max(600, 100 + numNodes * 3); // Example height calculation
             
+            console.log(width, " is the width");
+            console.log(height, " is the height");
+
             svg.attr("width", width)
             .attr("height", height);
 
@@ -171,16 +174,16 @@
                     } else if (sink_id === d.id) {
                         return "red";
                     } else {
-                        return "blue";
+                        return "black";
                     }
                 })
                 .on("click", function(event, d) {
                     if (resistor_1 === d.id) {
                         resistor_1 = null;
-                        d3.select(this).attr("fill", "blue");
+                        d3.select(this).attr("fill", "black");
                     } else if (resistor_2 === d.id) {
                         resistor_2 = null;
-                        d3.select(this).attr("fill", "blue");
+                        d3.select(this).attr("fill", "black");
                     } else if (!resistor_1) {
                         resistor_1 = d.id;
                         d3.select(this).attr("fill", "yellow");
@@ -338,7 +341,7 @@
             // Define the color scale
             const colorScale = d3.scaleLinear()
                 .domain([0, large_bet]) // Using the maximum edge frequency
-                .range(["black", "red"]); // Low frequency -> black, High frequency -> red
+                .range(["white", "red"]); // Low frequency -> black, High frequency -> red
 
             // Implement the colorEdges Function
             function colorEdges() {
