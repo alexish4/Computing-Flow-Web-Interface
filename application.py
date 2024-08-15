@@ -69,9 +69,20 @@ def upload_file():
 
     # Each edge will also have betweenness score
     largest_betweenness = 0
+
+    tempAdjDense = adj_matrix.todense()
+    
+    # Convert adjacency matrix to Laplacian matrix
+    tempLapDense = -copy.deepcopy(tempAdjDense)
+    for ii, irow in enumerate(tempLapDense):
+        tempLapDense[ii, ii] = -np.sum(irow)
+    
+    # Compute pseudoinverse of Laplacian matrix
+    tempLinv = np.linalg.pinv(tempLapDense)
+
     for u, v, data in G.edges(data=True):
         # Calculate based on the indices of the source (u) and target (v)
-        betw = get_betw_value(u, v)
+        betw = get_betw_value(u, v, tempLinv, tempAdjDense, source, sink)
         edge_length = -np.log(betw) #edge length is equal to -ln(|betw|) 
 
         data['betw'] = betw 
@@ -108,21 +119,7 @@ def upload_file():
     
     return jsonify(response_data)
 
-def get_betw_value(u, v):
-    global adj_matrix
-    global source
-    global sink
-
-    tempAdjDense = adj_matrix.todense()
-    
-    # Convert adjacency matrix to Laplacian matrix
-    tempLapDense = -copy.deepcopy(tempAdjDense)
-    for ii, irow in enumerate(tempLapDense):
-        tempLapDense[ii, ii] = -np.sum(irow)
-    
-    # Compute pseudoinverse of Laplacian matrix
-    tempLinv = np.linalg.pinv(tempLapDense)
-    
+def get_betw_value(u, v, tempLinv, tempAdjDense, source, sink):
     # Compute flow betweenness for the given edge
     v_source_sink_resist1 = tempLinv[u, source] - tempLinv[u, sink]
     v_source_sink_resist2 = tempLinv[v, source] - tempLinv[v, sink]
