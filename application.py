@@ -7,6 +7,7 @@ import os
 import networkx as nx
 import pandas as pd
 import heapq
+from itertools import islice
 
 app=Flask(__name__)
 
@@ -93,7 +94,10 @@ def upload_file():
     for u, v, data in G.edges(data=True):
         # Calculate based on the indices of the source (u) and target (v)
         betw = get_betw_value(u, v)
+        edge_length = -np.log(betw) #edge length is equal to -ln(|betw|) 
+
         data['betw'] = betw 
+        data['edge_length'] = edge_length
 
         #also want largest betweenness value
         if largest_betweenness < betw:
@@ -101,19 +105,27 @@ def upload_file():
     print(largest_betweenness, " is largest betweenness")
 
     # Find the top 4 optimal paths from source to sink
-    # top_paths = find_top_k_paths(G, source, sink)
-    # top_paths = top_paths[::-1] #reversing order
-    # print (len(top_paths), " is length of top paths")
+    top_paths = list(islice(nx.shortest_simple_paths(G, source, sink, "betw"), 4))
+    top_paths = top_paths[::-1]
+    
+    #calculate path length
+    path_lengths_edge_weights = []
+    for path in top_paths:
+        path_length = 0
+        for i in range(len(path) - 1):
+            path_length += G[path[i]][path[i + 1]]["betw"]
+        path_lengths_edge_weights.append(path_length)
+    print(top_paths)
 
-    # # Convert top_paths to a format that is easy to send to the front-end
-    # top_paths_data = [
-    #     {'total_betw': path[0], 'nodes': path[1]}
-    #     for path in top_paths[:4]  # Limit to top 4 paths
-    # ]
+    # Create the top_paths_data using path_lengths_edge_weights and top_paths_2
+    top_paths_data = [
+        {'total_betw': path_lengths_edge_weights[i], 'nodes': top_paths[i]}
+        for i in range(len(top_paths))  # Limit to top 4 paths
+]
 
     response_data = {
         'graph_data': nx.node_link_data(G),
-        #'top_paths': top_paths_data,
+        'top_paths': top_paths_data,
         'largest_betweenness': largest_betweenness
     }
     
@@ -176,6 +188,6 @@ def compute_flow_betweenness():
     return jsonify({'betweenness_score': betweenness_score})
 
 if __name__ == '__main__':
-    #app.run(debug=True)
-    port = int(os.environ.get("PORT", 5000))
-    app.run(host='0.0.0.0', port=port)
+    app.run(debug=True)
+    # port = int(os.environ.get("PORT", 5000))
+    # app.run(host='0.0.0.0', port=port)
