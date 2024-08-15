@@ -19,26 +19,6 @@ sink = 0
 def index():
     return render_template('index.html')
 
-def find_top_k_paths(G, source, sink, k=10):
-    # Priority queue to store paths with their total betweenness value
-    queue = [(0, source, [])]  # (total_betweenness, current_node, path)
-    paths = []
-
-    while queue and len(paths) < k:
-        total_betw, current_node, path = heapq.heappop(queue)
-        path = path + [current_node]
-
-        if current_node == sink:
-            paths.append((total_betw, path))
-            continue
-
-        for neighbor, edge_data in G[current_node].items():
-            if neighbor not in path:  # Avoid cycles
-                edge_betw = edge_data['betw']
-                heapq.heappush(queue, (total_betw + edge_betw, neighbor, path))
-
-    return paths
-
 def process_dat_file(file):
     data = np.loadtxt(file)
     num_nodes = data.shape[0]
