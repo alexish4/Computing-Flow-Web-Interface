@@ -12,8 +12,8 @@ from itertools import islice
 app=Flask(__name__)
 
 adj_matrix = []
-source = 0
-sink = 0
+source_array = []
+sink_array = []
 
 @app.route('/')
 def index():
@@ -42,18 +42,14 @@ def process_dat_file(file):
 @app.route('/upload', methods=['POST'])
 def upload_file():
     global adj_matrix
-    global source
-    global sink
+    global source_array
+    global sink_array
 
     file = request.files['file']
-    source_array = request.form['source']
-    sink_array = request.form['sink']
+    source_array = list(map(int, request.form['source'].split(',')))
+    sink_array = list(map(int, request.form['sink'].split(',')))
 
-    if len(source_array) == 1:
-        source = int(source_array[0])
-    if len(sink_array) == 1:
-        sink = int(sink_array[0])
-    print(sink_array, " is sink")
+    print(type(sink_array), " is type")
     
     if file.filename.endswith('.csv'):
         data = np.loadtxt(file, delimiter=',')
@@ -88,7 +84,7 @@ def upload_file():
 
     for u, v, data in G.edges(data=True):
         # Calculate based on the indices of the source (u) and target (v)
-        betw = get_betw_value(u, v, tempLinv, tempAdjDense, source, sink)
+        betw = get_betw_value(u, v, tempLinv, tempAdjDense)
         edge_length = -np.log(betw) #edge length is equal to -ln(|betw|) 
 
         data['betw'] = betw 
@@ -100,7 +96,7 @@ def upload_file():
     print(largest_betweenness, " is largest betweenness")
 
     # Find the top 4 optimal paths from source to sink
-    top_paths = list(islice(nx.shortest_simple_paths(G, source, sink, "edge_length"), 4))
+    top_paths = list(islice(nx.shortest_simple_paths(G, source_array[0], sink_array[0], "edge_length"), 4))
     
     #calculate path length
     path_lengths_edge_weights = []
@@ -125,13 +121,25 @@ def upload_file():
     
     return jsonify(response_data)
 
-def get_betw_value(u, v, tempLinv, tempAdjDense, source, sink):
-    # Compute flow betweenness for the given edge
-    v_source_sink_resist1 = tempLinv[u, source] - tempLinv[u, sink]
-    v_source_sink_resist2 = tempLinv[v, source] - tempLinv[v, sink]
-    b_resist1_resist2 = tempAdjDense[u, v] * (v_source_sink_resist1 - v_source_sink_resist2)
+def get_betw_value(u, v, tempLinv, tempAdjDense):
+    global source_array
+    global sink_array
 
-    betweenness_score = b_resist1_resist2.item() # Convert to a standard Python type
+    total_betweenness_score = 0
+
+    for s in source_array:
+        for t in sink_array:
+            # Compute flow betweenness for the given edge
+            v_source_sink_resist1 = tempLinv[u, s] - tempLinv[u, t]
+            v_source_sink_resist2 = tempLinv[v, s] - tempLinv[v, t]
+            b_resist1_resist2 = tempAdjDense[u, v] * (v_source_sink_resist1 - v_source_sink_resist2)
+            total_betweenness_score += b_resist1_resist2
+
+    #divide by number of combinations
+    num_of_combinations = len(source_array) * len(sink_array)
+    total_betweenness_score /= num_of_combinations
+
+    betweenness_score = total_betweenness_score.item() # Convert to a standard Python type
     if betweenness_score < 0:
         betweenness_score *= -1
 
@@ -140,8 +148,8 @@ def get_betw_value(u, v, tempLinv, tempAdjDense, source, sink):
 @app.route('/calculate', methods=['POST'])
 def compute_flow_betweenness():
     global adj_matrix
-    global source
-    global sink
+    global source_array
+    global sink_array
 
     resist_1 = int(request.form['resist1'])
     resist_2 = int(request.form['resist2'])
@@ -156,12 +164,21 @@ def compute_flow_betweenness():
     # Compute pseudoinverse of Laplacian matrix
     tempLinv = np.linalg.pinv(tempLapDense)
     
-    # Compute flow betweenness for the given edge
-    v_source_sink_resist1 = tempLinv[resist_1, source] - tempLinv[resist_1, sink]
-    v_source_sink_resist2 = tempLinv[resist_2, source] - tempLinv[resist_2, sink]
-    b_resist1_resist2 = tempAdjDense[resist_1, resist_2] * (v_source_sink_resist1 - v_source_sink_resist2)
+    total_betweenness_score = 0
 
-    betweenness_score = b_resist1_resist2.item() # Convert to a standard Python type
+    for s in source_array:
+        for t in sink_array:
+            # Compute flow betweenness for the given edge
+            v_source_sink_resist1 = tempLinv[resist_1, s] - tempLinv[resist_1, t]
+            v_source_sink_resist2 = tempLinv[resist_2, s] - tempLinv[resist_2, t]
+            b_resist1_resist2 = tempAdjDense[resist_1, resist_2] * (v_source_sink_resist1 - v_source_sink_resist2)
+            total_betweenness_score += b_resist1_resist2
+
+    #divide by number of combinations
+    num_of_combinations = len(source_array) * len(sink_array)
+    total_betweenness_score /= num_of_combinations
+
+    betweenness_score = total_betweenness_score.item() # Convert to a standard Python type
     if betweenness_score < 0:
         betweenness_score *= -1
     
