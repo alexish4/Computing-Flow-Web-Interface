@@ -49,6 +49,12 @@ def upload_file():
     source_array = list(map(int, request.form['source'].split(',')))
     sink_array = list(map(int, request.form['sink'].split(',')))
     
+    k = 10 #by default k is 10
+
+    if request.form['k'] != "":
+        k = int(request.form['k'])
+    print(k, " is k")
+    
     if file.filename.endswith('.csv'):
         data = np.loadtxt(file, delimiter=',')
         rows, cols, correlations = data[:, 0].astype(int), data[:, 1].astype(int), data[:, 2]
@@ -91,8 +97,8 @@ def upload_file():
         if largest_betweenness < betw:
             largest_betweenness = betw
 
-    # Find the top 4 optimal paths from source to sink
-    top_paths = list(islice(nx.shortest_simple_paths(G, source_array[0], sink_array[0], "edge_length"), 4))
+    # Find the top k optimal paths from source to sink
+    top_paths = list(islice(nx.shortest_simple_paths(G, source_array[0], sink_array[0], "edge_length"), k))
     
     #calculate path length
     path_lengths_edge_weights = []

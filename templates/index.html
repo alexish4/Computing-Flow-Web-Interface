@@ -48,6 +48,9 @@
         <label for="sink-resid">Sink Residue ID(s):</label>
         <input type="text" id="sink-resid" placeholder="Enter sink node(s), e.g., 1 or 1,2,3">
         <br>
+        <label for="k-resid">Enter # of Top Paths(Optional)</label>
+        <input type="text" id="k-resid">
+        <br>
         <button type="submit">Submit</button>
     </form>
     <br>
@@ -71,7 +74,7 @@
 
     <pre id="output"></pre>
 
-    <h2>Top Paths</h2>
+    <h2>Top Possible Simple Paths</h2>
     <div id="top-paths"></div>
 
     <script>
@@ -111,6 +114,7 @@
             const fileInput = document.getElementById('csv-file');
             const sourceResid = document.getElementById('source-resid').value;
             const sinkResid = document.getElementById('sink-resid').value;
+            const k = document.getElementById('k-resid').value;
 
             //resetting resistor values
             resistor_1 = null
@@ -153,6 +157,7 @@
             formData.append('file', fileInput.files[0]);
             formData.append('source', source_id_array);
             formData.append('sink', sink_id_array);
+            formData.append('k', k);
             fetch('/upload', {
                 method: 'POST',
                 body: formData
@@ -227,10 +232,10 @@
                     } else if (resistor_2 === d.id) {
                         resistor_2 = null;
                         d3.select(this).attr("fill", "black");
-                    } else if (!resistor_1) {
+                    } else if (resistor_1 === null) {
                         resistor_1 = d.id;
                         d3.select(this).attr("fill", "yellow");
-                    } else if (!resistor_2) {
+                    } else if (resistor_2 === null) {
                         resistor_2 = d.id;
                         d3.select(this).attr("fill", "yellow");
                     }
