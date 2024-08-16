@@ -312,9 +312,19 @@
             const container = d3.select('#top-paths');
             container.selectAll("*").remove(); // Clear previous paths
 
+            // Create a flex container to hold paths and paths2 side-by-side
+            const flexContainer = container.append("div")
+                .style("display", "flex"); // Use flexbox for horizontal alignment
+
+            // Create a container for paths
+            const pathsContainer = flexContainer.append("div")
+                .style("flex", "1");
+                //.style("margin-right", "20px"); // Optional: Add space between paths and paths2
+
+
             paths.forEach((path, index) => {
                 // Create a div to hold the path information and button
-                const pathDiv = container.append("div")
+                const pathDiv = pathsContainer.append("div")
                     .style("display", "flex") // Use flexbox for horizontal alignment
                     .style("align-items", "center") // Center items vertically
                     .style("margin-bottom", "10px"); // Optional: Add space between rows
@@ -335,9 +345,12 @@
                     });
             });
 
+            const paths2Container = flexContainer.append("div")
+                .style("flex", "1");
+
             paths2.forEach((path, index) => {
                 // Create a div to hold the path information and button
-                const pathDiv = container.append("div")
+                const pathDiv = paths2Container.append("div")
                     .style("display", "flex") // Use flexbox for horizontal alignment
                     .style("align-items", "center") // Center items vertically
                     .style("margin-bottom", "10px"); // Optional: Add space between rows
