@@ -145,10 +145,15 @@ def upload_file():
         {'edge_length': path_lengths_edge_weights[i], 'nodes': top_paths[i]}
         for i in range(len(top_paths))  # Limit to top 4 paths
     ]
+    top_paths_data2 = [
+        {'edge_length': path_lengths_edge_weights2[i], 'nodes': top_paths2[i]}
+        for i in range(len(top_paths2))  # Limit to top 4 paths
+    ]
 
     response_data = {
         'graph_data': nx.node_link_data(G),
         'top_paths': top_paths_data,
+        'top_paths2': top_paths_data2,
         'largest_betweenness': largest_betweenness
     }
     

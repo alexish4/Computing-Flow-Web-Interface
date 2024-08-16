@@ -166,7 +166,7 @@
             .then(data => {
                 large_bet = data.largest_betweenness;
                 updateSourceNodeLabel();
-                displayTopPaths(data.top_paths); // Display the top paths0                                
+                displayTopPaths(data.top_paths, data.top_paths2); // Display the top paths0                                
                 drawGraph(data.graph_data);
                 setupColorScaleAndEdges();
                 drawColorScale();
@@ -308,7 +308,7 @@
 
         }        
 
-        function displayTopPaths(paths) {
+        function displayTopPaths(paths, paths2) {
             const container = d3.select('#top-paths');
             container.selectAll("*").remove(); // Clear previous paths
 
@@ -322,7 +322,30 @@
                 const formattedNodes = path.nodes.map(node => node + 1).join(" -> ");
                 
                 pathDiv.append("div")
-                    .text(`Path ${index + 1}: Total Betweenness: ${path.edge_length}, Path: ${formattedNodes}`)
+                    .text(`Path ${index + 1}: Total Path Length From Betweenness: ${path.edge_length}, Path: ${formattedNodes}`)
+                    .style("margin-right", "10px"); // Optional: Add space between text and button
+
+                // Add a button to the div
+                pathDiv.append("button")
+                    .text("Highlight") // Change this text to whatever you want the button to display
+                    .on("click", () => {
+                        // Define what should happen when the button is clicked
+                        //alert(`Button for Path ${index + 1} clicked!`);
+                        highlightPathEdges(path);
+                    });
+            });
+
+            paths2.forEach((path, index) => {
+                // Create a div to hold the path information and button
+                const pathDiv = container.append("div")
+                    .style("display", "flex") // Use flexbox for horizontal alignment
+                    .style("align-items", "center") // Center items vertically
+                    .style("margin-bottom", "10px"); // Optional: Add space between rows
+
+                const formattedNodes = path.nodes.map(node => node + 1).join(" -> ");
+                
+                pathDiv.append("div")
+                    .text(`Path ${index + 1}: Total Path Length From Correlation: ${path.edge_length}, Path: ${formattedNodes}`)
                     .style("margin-right", "10px"); // Optional: Add space between text and button
 
                 // Add a button to the div
