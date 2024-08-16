@@ -48,8 +48,6 @@ def upload_file():
     file = request.files['file']
     source_array = list(map(int, request.form['source'].split(',')))
     sink_array = list(map(int, request.form['sink'].split(',')))
-
-    print(type(sink_array), " is type")
     
     if file.filename.endswith('.csv'):
         data = np.loadtxt(file, delimiter=',')
@@ -60,7 +58,6 @@ def upload_file():
         return jsonify({'error': 'Unsupported file format'}), 400
 
     adj_matrix = coo_matrix((correlations, (rows, cols)))
-    print(adj_matrix)
 
      # Create graph
     G = nx.from_scipy_sparse_array(adj_matrix)
@@ -93,7 +90,6 @@ def upload_file():
         #also want largest betweenness value
         if largest_betweenness < betw:
             largest_betweenness = betw
-    print(largest_betweenness, " is largest betweenness")
 
     # Find the top 4 optimal paths from source to sink
     top_paths = list(islice(nx.shortest_simple_paths(G, source_array[0], sink_array[0], "edge_length"), 4))
@@ -105,7 +101,7 @@ def upload_file():
         for i in range(len(path) - 1):
             path_length += G[path[i]][path[i + 1]]["edge_length"]
         path_lengths_edge_weights.append(path_length)
-    print(top_paths)
+    print(top_paths, " is top paths")
 
     # Create the top_paths_data using path_lengths_edge_weights and top_paths_2
     top_paths_data = [

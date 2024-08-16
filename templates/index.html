@@ -78,13 +78,9 @@
         let resistor_1 = null;
         let resistor_2 = null;
 
-        let source_id = null;
-        let sink_id = null;
-
         let source_id_array = [];
         let sink_id_array = [];
 
-        let topPaths = [];
         let large_bet = 0;
 
         const svg = d3.select("#graph-svg");
@@ -152,9 +148,6 @@
             // Print arrays to console
             console.log("Source Nodes Array:", source_id_array);
             console.log("Sink Nodes Array:", sink_id_array);
-
-            source_id = parseInt(document.getElementById('source-resid').value) - 1;
-            sink_id = parseInt(document.getElementById('sink-resid').value) - 1;
             
             const formData = new FormData();
             formData.append('file', fileInput.files[0]);
@@ -167,7 +160,7 @@
             .then(response => response.json())
             .then(data => {
                 large_bet = data.largest_betweenness;
-                updateSourceNodeLabel(source_id, sink_id);
+                updateSourceNodeLabel();
                 displayTopPaths(data.top_paths); // Display the top paths0                                
                 drawGraph(data.graph_data);
                 setupColorScaleAndEdges();
@@ -311,8 +304,6 @@
         }        
 
         function displayTopPaths(paths) {
-            topPaths = paths;
-            
             const container = d3.select('#top-paths');
             container.selectAll("*").remove(); // Clear previous paths
 
@@ -371,13 +362,11 @@
         }
 
         // Function to update the source node label
-        function updateSourceNodeLabel(source_num, sink_num) {
+        function updateSourceNodeLabel() {
             const sourceNodeLabel = document.getElementById('source-node-label');
             const sinkNodeLabel = document.getElementById('sink-node-label');
             const dirLabel = document.getElementById('directions-label');
             const refreshButton = document.getElementById('refresh-button');
-            // sourceNodeLabel.textContent = `Source Node: ${source_num + 1}`;
-            // sinkNodeLabel.textContent = `Sink Node: ${sink_num + 1}`;
             
             // Show the label
             sourceNodeLabel.style.display = 'inline';
