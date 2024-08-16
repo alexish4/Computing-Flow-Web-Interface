@@ -158,8 +158,8 @@
             
             const formData = new FormData();
             formData.append('file', fileInput.files[0]);
-            formData.append('source', sourceResid);
-            formData.append('sink', sinkResid);
+            formData.append('source', source_id_array);
+            formData.append('sink', sink_id_array);
             fetch('/upload', {
                 method: 'POST',
                 body: formData

@@ -46,8 +46,14 @@ def upload_file():
     global sink
 
     file = request.files['file']
-    source = int(request.form['source']) - 1
-    sink = int(request.form['sink']) - 1
+    source_array = request.form['source']
+    sink_array = request.form['sink']
+
+    if len(source_array) == 1:
+        source = int(source_array[0])
+    if len(sink_array) == 1:
+        sink = int(sink_array[0])
+    print(sink_array, " is sink")
     
     if file.filename.endswith('.csv'):
         data = np.loadtxt(file, delimiter=',')
