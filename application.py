@@ -14,6 +14,24 @@ app=Flask(__name__)
 adj_matrix = []
 source_array = []
 sink_array = []
+betweenness_values = []
+#387,388,389,389,390,391,392
+#328,329,334,338,378,348
+
+@app.route('/betweenness-histogram', methods=['POST'])
+def betweenness_histogram():
+    global betweenness_values
+
+    # Prepare histogram data
+    histogram, bin_edges = np.histogram(betweenness_values, bins='auto')
+
+    # Create histogram data structure for JSON response
+    histogram_data = {
+        'histogram': histogram.tolist(),
+        'bin_edges': bin_edges.tolist()
+    }
+
+    return jsonify(histogram_data)
 
 @app.route('/')
 def index():
@@ -89,9 +107,14 @@ def upload_file():
         # Calculate based on the indices of the source (u) and target (v)
         betw = get_betw_value(u, v, tempLinv, tempAdjDense)
         edge_length = -np.log(betw) #edge length is equal to -ln(|betw|) 
+        edge_length2 = -np.log(data['weight'])
+        print(edge_length2)
 
         data['betw'] = betw 
         data['edge_length'] = edge_length
+        data['edge_length2'] = edge_length2
+
+        betweenness_values.append(betw)
 
         #also want largest betweenness value
         if largest_betweenness < betw:
@@ -99,15 +122,23 @@ def upload_file():
 
     # Find the top k optimal paths from source to sink
     top_paths = list(islice(nx.shortest_simple_paths(G, source_array[0], sink_array[0], "edge_length"), k))
+    top_paths2 = list(islice(nx.shortest_simple_paths(G, source_array[0], sink_array[0], "edge_length2"), k))
+    print(top_paths2, " is top paths 2")
     
     #calculate path length
     path_lengths_edge_weights = []
+    path_lengths_edge_weights2 = []
     for path in top_paths:
         path_length = 0
+        path_length2 = 0
         for i in range(len(path) - 1):
             path_length += G[path[i]][path[i + 1]]["edge_length"]
+            path_length2 += G[path[i]][path[i + 1]]["edge_length2"]
         path_lengths_edge_weights.append(path_length)
+        path_lengths_edge_weights2.append(path_length2)
     print(top_paths, " is top paths")
+    print(path_lengths_edge_weights, " is from betweenness")
+    print(path_lengths_edge_weights2, " is from correlation")
 
     # Create the top_paths_data using path_lengths_edge_weights and top_paths_2
     top_paths_data = [
