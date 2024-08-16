@@ -42,11 +42,11 @@
         <label for="csv-file">Upload File:</label>
         <input type="file" id="csv-file" accept=".csv, .dat">
         <br>
-        <label for="source-resid">Source Residue ID:</label>
-        <input type="number" id="source-resid">
+        <label for="source-resid">Source Residue ID(s):</label>
+        <input type="text" id="source-resid" placeholder="Enter source node(s), e.g., 1 or 1,2,3">
         <br>
-        <label for="sink-resid">Sink Residue ID:</label>
-        <input type="number" id="sink-resid">
+        <label for="sink-resid">Sink Residue ID(s):</label>
+        <input type="text" id="sink-resid" placeholder="Enter sink node(s), e.g., 1 or 1,2,3">
         <br>
         <button type="submit">Submit</button>
     </form>
@@ -80,6 +80,9 @@
 
         let source_id = null;
         let sink_id = null;
+
+        let source_id_array = [];
+        let sink_id_array = [];
 
         let topPaths = [];
         let large_bet = 0;
@@ -116,6 +119,37 @@
             //resetting resistor values
             resistor_1 = null
             resistor_2 = null
+
+            let sourceInput = document.getElementById('source-resid').value;
+            let sinkInput = document.getElementById('sink-resid').value;
+
+            // Process source input
+            source_id_array = sourceInput
+                .split(',')
+                .map(node => node.trim())
+                .filter(node => node !== '')
+                .map(node => parseInt(node, 10) - 1); // Convert each to an integer
+            if (source_id_array.length > 1) {
+                document.getElementById("source-node-label").innerText = "Source Nodes: " + source_id_array.join(", ");
+            } else{
+                document.getElementById("source-node-label").innerText = "Source Node: " + source_id_array[0];
+            }
+
+            // Process sink input
+            sink_id_array = sinkInput
+                .split(',')
+                .map(node => node.trim())
+                .filter(node => node !== '')
+                .map(node => parseInt(node, 10) - 1); // Convert each to an integer
+            if (sink_id_array.length > 1) {
+                document.getElementById("sink-node-label").innerText = "Sink Nodes: " + sink_id_array.join(", ");
+            } else  {
+                document.getElementById("sink-node-label").innerText = "Sink Node: " + sink_id_array[0];
+            } 
+
+            // Print arrays to console
+            console.log("Source Nodes Array:", source_id_array);
+            console.log("Sink Nodes Array:", sink_id_array);
 
             source_id = parseInt(document.getElementById('source-resid').value) - 1;
             sink_id = parseInt(document.getElementById('sink-resid').value) - 1;
