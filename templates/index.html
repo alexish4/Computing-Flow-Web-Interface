@@ -127,8 +127,8 @@
             source_id_array = sourceInput
                 .split(',')
                 .map(node => node.trim())
-                .filter(node => node !== '')
-                .map(node => parseInt(node, 10) - 1); // Convert each to an integer
+                .filter(node => node !== '');
+
             if (source_id_array.length > 1) {
                 document.getElementById("source-node-label").innerText = "Source Nodes: " + source_id_array.join(", ");
             } else{
@@ -139,14 +139,16 @@
             sink_id_array = sinkInput
                 .split(',')
                 .map(node => node.trim())
-                .filter(node => node !== '')
-                .map(node => parseInt(node, 10) - 1); // Convert each to an integer
+                .filter(node => node !== '');
+                
             if (sink_id_array.length > 1) {
                 document.getElementById("sink-node-label").innerText = "Sink Nodes: " + sink_id_array.join(", ");
             } else  {
                 document.getElementById("sink-node-label").innerText = "Sink Node: " + sink_id_array[0];
             } 
 
+            source_id_array = source_id_array.map(node => parseInt(node, 10) - 1); // Convert each to an integer
+            sink_id_array = sink_id_array.map(node => parseInt(node, 10) - 1); // Convert each to an integer
             // Print arrays to console
             console.log("Source Nodes Array:", source_id_array);
             console.log("Sink Nodes Array:", sink_id_array);
@@ -177,8 +179,8 @@
             zoomGroup.selectAll("*").remove(); // Clear previous graph
             
             // Position the source and sink nodes
-            const sourceNode = graph.nodes.find(d => d.id === source_id);
-            const sinkNode = graph.nodes.find(d => d.id === sink_id);
+            const sourceNode = graph.nodes.find(d => d.id === source_id_array[0]);
+            const sinkNode = graph.nodes.find(d => d.id === sink_id_array[0]);
 
             if (sourceNode) sourceNode.fx = 200; // Fixed x position for source node
             if (sinkNode) sinkNode.fx = width - 200; // Fixed x position for sink node
@@ -217,9 +219,9 @@
             const circles = node.append("circle")
                 .attr("r", 10)
                 .attr("fill", function(d) {
-                    if (source_id === d.id) {
+                    if (source_id_array.includes(d.id)) {
                         return "green";
-                    } else if (sink_id === d.id) {
+                    } else if (sink_id_array.includes(d.id)) {
                         return "red";
                     } else {
                         return "black";
@@ -374,8 +376,8 @@
             const sinkNodeLabel = document.getElementById('sink-node-label');
             const dirLabel = document.getElementById('directions-label');
             const refreshButton = document.getElementById('refresh-button');
-            sourceNodeLabel.textContent = `Source Node: ${source_num + 1}`;
-            sinkNodeLabel.textContent = `Sink Node: ${sink_num + 1}`;
+            // sourceNodeLabel.textContent = `Source Node: ${source_num + 1}`;
+            // sinkNodeLabel.textContent = `Sink Node: ${sink_num + 1}`;
             
             // Show the label
             sourceNodeLabel.style.display = 'inline';
