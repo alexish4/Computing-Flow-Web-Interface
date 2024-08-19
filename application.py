@@ -123,12 +123,11 @@ def upload_file():
             path_length2 += G[path[i]][path[i + 1]]["edge_length2"]
         path_lengths_edge_weights2.append(path_length2)
 
+    print(path_lengths_edge_weights)
+    print(path_lengths_edge_weights2)
+
     #save histograms to different page
     img_data, img_data2 = histograms(path_lengths_edge_weights, path_lengths_edge_weights2)
-
-    # print(top_paths, " is top paths")
-    # print(path_lengths_edge_weights, " is from betweenness")
-    # print(path_lengths_edge_weights2, " is from correlation")
 
     # Create the top_paths_data using path_lengths_edge_weights and top_paths_2
     top_paths_data = [
@@ -139,8 +138,6 @@ def upload_file():
         {'edge_length': path_lengths_edge_weights2[i], 'nodes': top_paths2[i]}
         for i in range(len(top_paths2))  # Limit to top 4 paths
     ]
-
-    print(top_paths_data2)
 
     response_data = {
         'graph_data': nx.node_link_data(G),
@@ -220,7 +217,6 @@ def histograms(path_lengths, path_lengths2):
     # Generate histogram
     plt.figure()
     plt.hist(path_lengths, bins=10, alpha=0.5, label='Edge Weights 1', density=True)
-    plt.hist(path_lengths2, bins=10, alpha=0.5, label='Edge Weights 2', density=True)
     plt.xlabel('Value')
     plt.ylabel('Probability')
     plt.legend(loc='upper right')
@@ -233,7 +229,7 @@ def histograms(path_lengths, path_lengths2):
     img_data = base64.b64encode(buf.getvalue()).decode('utf8')
     buf.close()
 
-        # Generate histogram
+    # Generate histogram
     plt.figure()
     plt.hist(path_lengths2, bins=10, alpha=0.5, label='Edge Weights 2', density=True)
     plt.xlabel('Value')
