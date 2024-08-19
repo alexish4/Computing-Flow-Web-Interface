@@ -108,7 +108,7 @@ def upload_file():
         betw = get_betw_value(u, v, tempLinv, tempAdjDense)
         edge_length = -np.log(betw) #edge length is equal to -ln(|betw|) 
         edge_length2 = -np.log(data['weight'])
-        print(edge_length2)
+        #print(edge_length2)
 
         data['betw'] = betw 
         data['edge_length'] = edge_length
@@ -123,22 +123,24 @@ def upload_file():
     # Find the top k optimal paths from source to sink
     top_paths = list(islice(nx.shortest_simple_paths(G, source_array[0], sink_array[0], "edge_length"), k))
     top_paths2 = list(islice(nx.shortest_simple_paths(G, source_array[0], sink_array[0], "edge_length2"), k))
-    print(top_paths2, " is top paths 2")
+    #print(top_paths2, " is top paths 2")
     
     #calculate path length
     path_lengths_edge_weights = []
     path_lengths_edge_weights2 = []
     for path in top_paths:
         path_length = 0
-        path_length2 = 0
         for i in range(len(path) - 1):
             path_length += G[path[i]][path[i + 1]]["edge_length"]
-            path_length2 += G[path[i]][path[i + 1]]["edge_length2"]
         path_lengths_edge_weights.append(path_length)
+    for path in top_paths2:
+        path_length2 = 0
+        for i in range(len(path) - 1):
+            path_length2 += G[path[i]][path[i + 1]]["edge_length2"]
         path_lengths_edge_weights2.append(path_length2)
-    print(top_paths, " is top paths")
-    print(path_lengths_edge_weights, " is from betweenness")
-    print(path_lengths_edge_weights2, " is from correlation")
+    # print(top_paths, " is top paths")
+    # print(path_lengths_edge_weights, " is from betweenness")
+    # print(path_lengths_edge_weights2, " is from correlation")
 
     # Create the top_paths_data using path_lengths_edge_weights and top_paths_2
     top_paths_data = [
@@ -149,6 +151,8 @@ def upload_file():
         {'edge_length': path_lengths_edge_weights2[i], 'nodes': top_paths2[i]}
         for i in range(len(top_paths2))  # Limit to top 4 paths
     ]
+
+    print(top_paths_data2)
 
     response_data = {
         'graph_data': nx.node_link_data(G),
