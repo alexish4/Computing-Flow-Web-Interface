@@ -4,6 +4,8 @@ import scipy as sp
 from scipy.sparse import coo_matrix
 import copy
 import os
+import io
+import base64
 import networkx as nx
 import pandas as pd
 import heapq
@@ -54,9 +56,8 @@ def upload_file():
     
     k = 10 #by default k is 10
 
-    if request.form['k'] != "":
+    if request.form['k'] != "": #if k has input
         k = int(request.form['k'])
-    print(k, " is k")
     
     if file.filename.endswith('.csv'):
         data = np.loadtxt(file, delimiter=',')
@@ -122,13 +123,8 @@ def upload_file():
             path_length2 += G[path[i]][path[i + 1]]["edge_length2"]
         path_lengths_edge_weights2.append(path_length2)
 
-    plt.hist(path_lengths_edge_weights, bins=10, density=True)
-    plt.title('Histogram of Edge Weights 1')
-    plt.show()
-
-    plt.hist(path_lengths_edge_weights2, bins=10, density=True)
-    plt.title('Histogram of Edge Weights 2')
-    plt.show()
+    #save histograms to different page
+    histograms(path_lengths_edge_weights, path_lengths_edge_weights2)
 
     # print(top_paths, " is top paths")
     # print(path_lengths_edge_weights, " is from betweenness")
@@ -218,32 +214,25 @@ def compute_flow_betweenness():
     
     return jsonify({'betweenness_score': betweenness_score})
 
-@app.route('/histogram1')
-def histogram1():
-    # Generate the first histogram
-    fig, ax = plt.subplots()
-    ax.hist([1, 2, 2, 3, 3, 3, 4, 4, 4, 4], bins=4, density=True)
-    ax.set_ylabel('Probability')
-    img = io.BytesIO()
-    plt.savefig(img, format='png')
-    img.seek(0)
-    plot_url1 = base64.b64encode(img.getvalue()).decode('utf8')
+@app.route('/histograms')
+def histograms(path_lengths, path_lengths2):
+    # Generate histogram
+    plt.figure()
+    plt.hist(path_lengths, bins=10, alpha=0.5, label='Edge Weights 1', density=True)
+    plt.hist(path_lengths2, bins=10, alpha=0.5, label='Edge Weights 2', density=True)
+    plt.xlabel('Value')
+    plt.ylabel('Probability')
+    plt.legend(loc='upper right')
+    plt.title('Histogram with Probability on Y-axis')
 
-    return render_template('histogram1.html', plot_url=plot_url1)
+    # Save to a bytes buffer
+    buf = io.BytesIO()
+    plt.savefig(buf, format='png')
+    buf.seek(0)
+    img_data = base64.b64encode(buf.getvalue()).decode('utf8')
+    buf.close()
 
-@app.route('/histogram2')
-def histogram2():
-    # Generate the second histogram
-    fig, ax = plt.subplots()
-    ax.hist([2, 3, 3, 4, 4, 5, 5, 5, 6], bins=4, density=True)
-    ax.set_ylabel('Probability')
-    img = io.BytesIO()
-    plt.savefig(img, format='png')
-    img.seek(0)
-    plot_url2 = base64.b64encode(img.getvalue()).decode('utf8')
-
-    return render_template('histogram2.html', plot_url=plot_url2)
-
+    return render_template('histograms.html', img_data=img_data)
 
 if __name__ == '__main__':
     app.run(debug=True)
