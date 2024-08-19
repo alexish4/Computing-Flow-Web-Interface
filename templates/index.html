@@ -76,6 +76,7 @@
 
     <h2>Top Possible Simple Paths</h2>
     <div id="top-paths"></div>
+    <div id="histogram-container" style="text-align: center; margin-top: 20px;"></div>
 
     <script>
         let resistor_1 = null;
@@ -107,6 +108,16 @@
         d3.select("#zoom-out-button").on("click", () => zoom.scaleBy(svg.transition().duration(500), 0.8));
         d3.select("#reset-zoom-button").on("click", () => svg.transition().duration(500).call(zoom.transform, d3.zoomIdentity));
 
+        // Function to display histogram image
+        function displayHistogram(imgData) {
+            const img = document.createElement('img');
+            img.src = 'data:image/png;base64,' + imgData;
+            img.alt = 'Histogram';
+            
+            const histogramContainer = document.getElementById('histogram-container');
+            histogramContainer.innerHTML = ''; // Clear previous image
+            histogramContainer.appendChild(img); // Add new image
+        }
 
         document.getElementById('upload-form').onsubmit = function(e) {
             e.preventDefault();
@@ -170,6 +181,7 @@
                 drawGraph(data.graph_data);
                 setupColorScaleAndEdges();
                 drawColorScale();
+                displayHistogram(data.histogram);
             }); 
         };
 

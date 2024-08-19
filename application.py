@@ -124,7 +124,7 @@ def upload_file():
         path_lengths_edge_weights2.append(path_length2)
 
     #save histograms to different page
-    #histograms(path_lengths_edge_weights, path_lengths_edge_weights2)
+    img_data = histograms(path_lengths_edge_weights, path_lengths_edge_weights2)
 
     # print(top_paths, " is top paths")
     # print(path_lengths_edge_weights, " is from betweenness")
@@ -146,6 +146,7 @@ def upload_file():
         'graph_data': nx.node_link_data(G),
         'top_paths': top_paths_data,
         'top_paths2': top_paths_data2,
+        'histogram': img_data,
         'largest_betweenness': largest_betweenness
     }
     
@@ -214,7 +215,6 @@ def compute_flow_betweenness():
     
     return jsonify({'betweenness_score': betweenness_score})
 
-@app.route('/histograms')
 def histograms(path_lengths, path_lengths2):
     # Generate histogram
     plt.figure()
@@ -225,16 +225,14 @@ def histograms(path_lengths, path_lengths2):
     plt.legend(loc='upper right')
     plt.title('Histogram with Probability on Y-axis')
 
-    plt.show()
+    # Save to a bytes buffer
+    buf = io.BytesIO()
+    plt.savefig(buf, format='png')
+    buf.seek(0)
+    img_data = base64.b64encode(buf.getvalue()).decode('utf8')
+    buf.close()
 
-    # # Save to a bytes buffer
-    # buf = io.BytesIO()
-    # plt.savefig(buf, format='png')
-    # buf.seek(0)
-    # img_data = base64.b64encode(buf.getvalue()).decode('utf8')
-    # buf.close()
-
-    # return render_template('histograms.html', img_data=img_data)
+    return img_data
 
 if __name__ == '__main__':
     app.run(debug=True)
