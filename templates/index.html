@@ -320,7 +320,11 @@
                     });
 
                     const result = await response.json();
-                    document.getElementById('output').textContent = JSON.stringify(result, null, 2);
+                    if (result.betweenness_score === 0) {
+                        alert("Please select 2 Resistors that have a direct connection");
+                    } else {
+                        document.getElementById('output').textContent = JSON.stringify(result, null, 2);
+                    }
                 }
             };
             document.getElementById('refresh-button').onclick = async function() {
