@@ -77,6 +77,7 @@
     <h2>Top Possible Simple Paths</h2>
     <div id="top-paths"></div>
     <div id="histogram-container" style="text-align: center; margin-top: 20px;"></div>
+    <div id="histogram-container2" style="text-align: center; margin-top: 20px;"></div>
 
     <script>
         let resistor_1 = null;
@@ -108,15 +109,23 @@
         d3.select("#zoom-out-button").on("click", () => zoom.scaleBy(svg.transition().duration(500), 0.8));
         d3.select("#reset-zoom-button").on("click", () => svg.transition().duration(500).call(zoom.transform, d3.zoomIdentity));
 
-        // Function to display histogram image
-        function displayHistogram(imgData) {
-            const img = document.createElement('img');
-            img.src = 'data:image/png;base64,' + imgData;
-            img.alt = 'Histogram';
+       // Function to display histogram images
+        function displayHistogram(imgData, imgData2) {
+            const img1 = document.createElement('img');
+            img1.src = 'data:image/png;base64,' + imgData;
+            img1.alt = 'Histogram 1';
             
             const histogramContainer = document.getElementById('histogram-container');
             histogramContainer.innerHTML = ''; // Clear previous image
-            histogramContainer.appendChild(img); // Add new image
+            histogramContainer.appendChild(img1); // Add new image
+
+            const img2 = document.createElement('img');
+            img2.src = 'data:image/png;base64,' + imgData2;
+            img2.alt = 'Histogram 2';
+            
+            const histogramContainer2 = document.getElementById('histogram-container2');
+            histogramContainer2.innerHTML = ''; // Clear previous image
+            histogramContainer2.appendChild(img2); // Add new image
         }
 
         document.getElementById('upload-form').onsubmit = function(e) {
@@ -181,7 +190,7 @@
                 drawGraph(data.graph_data);
                 setupColorScaleAndEdges();
                 drawColorScale();
-                displayHistogram(data.histogram);
+                displayHistogram(data.histogram1, data.histogram2);
             }); 
         };
 
