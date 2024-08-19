@@ -124,7 +124,7 @@ def upload_file():
         path_lengths_edge_weights2.append(path_length2)
 
     #save histograms to different page
-    histograms(path_lengths_edge_weights, path_lengths_edge_weights2)
+    #histograms(path_lengths_edge_weights, path_lengths_edge_weights2)
 
     # print(top_paths, " is top paths")
     # print(path_lengths_edge_weights, " is from betweenness")
@@ -225,14 +225,16 @@ def histograms(path_lengths, path_lengths2):
     plt.legend(loc='upper right')
     plt.title('Histogram with Probability on Y-axis')
 
-    # Save to a bytes buffer
-    buf = io.BytesIO()
-    plt.savefig(buf, format='png')
-    buf.seek(0)
-    img_data = base64.b64encode(buf.getvalue()).decode('utf8')
-    buf.close()
+    plt.show()
 
-    return render_template('histograms.html', img_data=img_data)
+    # # Save to a bytes buffer
+    # buf = io.BytesIO()
+    # plt.savefig(buf, format='png')
+    # buf.seek(0)
+    # img_data = base64.b64encode(buf.getvalue()).decode('utf8')
+    # buf.close()
+
+    # return render_template('histograms.html', img_data=img_data)
 
 if __name__ == '__main__':
     app.run(debug=True)

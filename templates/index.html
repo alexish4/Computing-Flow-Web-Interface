@@ -95,7 +95,7 @@
 
         // Zoom and pan functionality
         const zoom = d3.zoom()
-            .scaleExtent([0.5, 10])
+            .scaleExtent([0.1, 10])
             .on("zoom", event => {
                 zoomGroup.attr("transform", event.transform);
             });
