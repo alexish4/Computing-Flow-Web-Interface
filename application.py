@@ -8,30 +8,15 @@ import networkx as nx
 import pandas as pd
 import heapq
 from itertools import islice
+import matplotlib.pyplot as plt
 
 app=Flask(__name__)
 
 adj_matrix = []
 source_array = []
 sink_array = []
-betweenness_values = []
 #387,388,389,389,390,391,392
 #328,329,334,338,378,348
-
-@app.route('/betweenness-histogram', methods=['POST'])
-def betweenness_histogram():
-    global betweenness_values
-
-    # Prepare histogram data
-    histogram, bin_edges = np.histogram(betweenness_values, bins='auto')
-
-    # Create histogram data structure for JSON response
-    histogram_data = {
-        'histogram': histogram.tolist(),
-        'bin_edges': bin_edges.tolist()
-    }
-
-    return jsonify(histogram_data)
 
 @app.route('/')
 def index():
@@ -114,8 +99,6 @@ def upload_file():
         data['edge_length'] = edge_length
         data['edge_length2'] = edge_length2
 
-        betweenness_values.append(betw)
-
         #also want largest betweenness value
         if largest_betweenness < betw:
             largest_betweenness = betw
@@ -138,6 +121,15 @@ def upload_file():
         for i in range(len(path) - 1):
             path_length2 += G[path[i]][path[i + 1]]["edge_length2"]
         path_lengths_edge_weights2.append(path_length2)
+
+    plt.hist(path_lengths_edge_weights, bins=10, density=True)
+    plt.title('Histogram of Edge Weights 1')
+    plt.show()
+
+    plt.hist(path_lengths_edge_weights2, bins=10, density=True)
+    plt.title('Histogram of Edge Weights 2')
+    plt.show()
+
     # print(top_paths, " is top paths")
     # print(path_lengths_edge_weights, " is from betweenness")
     # print(path_lengths_edge_weights2, " is from correlation")
@@ -225,6 +217,33 @@ def compute_flow_betweenness():
         betweenness_score *= -1
     
     return jsonify({'betweenness_score': betweenness_score})
+
+@app.route('/histogram1')
+def histogram1():
+    # Generate the first histogram
+    fig, ax = plt.subplots()
+    ax.hist([1, 2, 2, 3, 3, 3, 4, 4, 4, 4], bins=4, density=True)
+    ax.set_ylabel('Probability')
+    img = io.BytesIO()
+    plt.savefig(img, format='png')
+    img.seek(0)
+    plot_url1 = base64.b64encode(img.getvalue()).decode('utf8')
+
+    return render_template('histogram1.html', plot_url=plot_url1)
+
+@app.route('/histogram2')
+def histogram2():
+    # Generate the second histogram
+    fig, ax = plt.subplots()
+    ax.hist([2, 3, 3, 4, 4, 5, 5, 5, 6], bins=4, density=True)
+    ax.set_ylabel('Probability')
+    img = io.BytesIO()
+    plt.savefig(img, format='png')
+    img.seek(0)
+    plot_url2 = base64.b64encode(img.getvalue()).decode('utf8')
+
+    return render_template('histogram2.html', plot_url=plot_url2)
+
 
 if __name__ == '__main__':
     app.run(debug=True)
