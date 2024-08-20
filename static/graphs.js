@@ -277,7 +277,7 @@ function displayTopPaths(paths, paths2) {
 
     // Create a container for paths
     const pathsContainer = flexContainer.append("div")
-        .html("<strong>Betweenness</strong>")
+        .html("<strong>Edge Length = -ln(betweenness)</strong>")
         .style("flex", "1");
         //.style("margin-right", "20px"); // Optional: Add space between paths and paths2
 
@@ -306,7 +306,7 @@ function displayTopPaths(paths, paths2) {
     });
 
     const paths2Container = flexContainer.append("div")
-        .html("<strong>Correlation</strong>")
+        .html("<strong>Edge Length = -ln(correlation)</strong>")
         .style("flex", "1");
 
     paths2.forEach((path, index) => {
