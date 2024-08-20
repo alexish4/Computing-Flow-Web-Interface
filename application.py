@@ -103,7 +103,6 @@ def upload_file():
             return jsonify(response_data)
         edge_length = -np.log(betw) #edge length is equal to -ln(|betw|) 
         edge_length2 = -np.log(data['weight'])
-        #print(edge_length2)
 
         data['betw'] = betw 
         data['edge_length'] = edge_length
@@ -116,7 +115,6 @@ def upload_file():
     # Find the top k optimal paths from source to sink
     top_paths = list(islice(nx.shortest_simple_paths(G, source_array[0], sink_array[0], "edge_length"), k))
     top_paths2 = list(islice(nx.shortest_simple_paths(G, source_array[0], sink_array[0], "edge_length2"), k))
-    #print(top_paths2, " is top paths 2")
     
     #calculate path length
     path_lengths_edge_weights = []
@@ -131,9 +129,6 @@ def upload_file():
         for i in range(len(path) - 1):
             path_length2 += G[path[i]][path[i + 1]]["edge_length2"]
         path_lengths_edge_weights2.append(path_length2)
-
-    print(path_lengths_edge_weights)
-    print(path_lengths_edge_weights2)
 
     #save histograms to different page
     img_data, img_data2 = histograms(path_lengths_edge_weights, path_lengths_edge_weights2)

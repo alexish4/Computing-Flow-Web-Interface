@@ -92,6 +92,7 @@
         let sink_id_array = [];
 
         let large_bet = 0;
+        let startingIndexValue = 1;
 
         const svg = d3.select("#graph-svg");
         const width = parseInt(svg.style("width"));
@@ -146,8 +147,10 @@
             resistor_2 = null
 
             // Get the selected radio button value
-            const startingIndexValue = document.querySelector('input[name="option"]:checked').value;
-            console.log("Selected Starting Index:", startingIndexValue);
+            startingIndexValue = document.querySelector('input[name="option"]:checked').value;
+            if (startingIndexValue === "1") {
+                console.log("Selected Starting Index:", startingIndexValue);
+            }
 
             let sourceInput = document.getElementById('source-resid').value;
             let sinkInput = document.getElementById('sink-resid').value;
@@ -176,8 +179,13 @@
                 document.getElementById("sink-node-label").innerText = "Sink Node: " + sink_id_array[0];
             } 
 
-            source_id_array = source_id_array.map(node => parseInt(node, 10) - 1); // Convert each to an integer
-            sink_id_array = sink_id_array.map(node => parseInt(node, 10) - 1); // Convert each to an integer
+            if (startingIndexValue === "1") {
+                source_id_array = source_id_array.map(node => parseInt(node, 10) - 1); // Convert each to an integer
+                sink_id_array = sink_id_array.map(node => parseInt(node, 10) - 1); // Convert each to an integer
+            } else {
+                source_id_array = source_id_array.map(node => parseInt(node, 10)); // Convert each to an integer
+                sink_id_array = sink_id_array.map(node => parseInt(node, 10)); // Convert each to an integer
+            }
             // Print arrays to console
             console.log("Source Nodes Array:", source_id_array);
             console.log("Sink Nodes Array:", sink_id_array);
@@ -187,6 +195,7 @@
             formData.append('source', source_id_array);
             formData.append('sink', sink_id_array);
             formData.append('k', k);
+            formData.append('startingIndexValue', startingIndexValue);
             fetch('/upload', {
                 method: 'POST',
                 body: formData
@@ -285,7 +294,7 @@
                 .attr("fill", "black")
                 .attr("font-size", "12px")
                 .attr("text-anchor", "middle")
-                .text(d => d.id + 1);
+                .text(d => startingIndexValue === "1" ? d.id + 1 : d.id);
 
             simulation
                 .nodes(graph.nodes)
@@ -368,7 +377,7 @@
                     .style("align-items", "center") // Center items vertically
                     .style("margin-bottom", "10px"); // Optional: Add space between rows
 
-                const formattedNodes = path.nodes.map(node => node + 1).join(" -> ");
+                const formattedNodes = path.nodes.map(node => startingIndexValue === "1" ? node + 1 : node).join(" -> ");
                 
                 pathDiv.append("div")
                     .text(`Path ${index + 1}: Total Path Length From Betweenness: ${path.edge_length}, Path: ${formattedNodes}`)
@@ -395,7 +404,7 @@
                     .style("align-items", "center") // Center items vertically
                     .style("margin-bottom", "10px"); // Optional: Add space between rows
 
-                const formattedNodes = path.nodes.map(node => node + 1).join(" -> ");
+                const formattedNodes = path.nodes.map(node => startingIndexValue === "1" ? node + 1 : node).join(" -> ");
                 
                 pathDiv.append("div")
                     .text(`Path ${index + 1}: Total Path Length From Correlation: ${path.edge_length}, Path: ${formattedNodes}`)
