@@ -49,10 +49,23 @@
 
     <pre id="output"></pre>
 
-    <h2>Top Possible Simple Paths</h2>
-    <div id="top-paths"></div>
-    <div id="histogram-container" style="text-align: center; margin-top: 20px;"></div>
-    <div id="histogram-container2" style="text-align: center; margin-top: 20px;"></div>
+    <!-- Tab links -->
+    <div class="tab">
+        <button class="tablinks" onclick="openTab(event, 'TopPaths')">Top Paths</button>
+        <button class="tablinks" onclick="openTab(event, 'Histograms')">Histograms</button>
+    </div>
+
+    <!-- Tab content -->
+    <div id="TopPaths" class="tabcontent">
+        <h2>Top Possible Simple Paths</h2>
+        <div id="top-paths"></div>
+    </div>
+
+    <div id="Histograms" class="tabcontent">
+        <h2>Histograms</h2>
+        <div id="histogram-container" style="text-align: center; margin-top: 20px;"></div>
+        <div id="histogram-container2" style="text-align: center; margin-top: 20px;"></div>
+    </div>
 
     <script src="{{ url_for('static', filename='graphs.js') }}"></script>
 
