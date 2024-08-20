@@ -89,9 +89,18 @@ def upload_file():
     # Compute pseudoinverse of Laplacian matrix
     tempLinv = np.linalg.pinv(tempLapDense)
 
+    #variable to check if input is out of bounds
+    incorrect_input = False
+
     for u, v, data in G.edges(data=True):
         # Calculate based on the indices of the source (u) and target (v)
         betw = get_betw_value(u, v, tempLinv, tempAdjDense)
+        if betw is None:
+            incorrect_input = True
+            response_data = {
+                'incorrect_input': incorrect_input
+            }
+            return jsonify(response_data)
         edge_length = -np.log(betw) #edge length is equal to -ln(|betw|) 
         edge_length2 = -np.log(data['weight'])
         #print(edge_length2)
@@ -145,6 +154,7 @@ def upload_file():
         'top_paths2': top_paths_data2,
         'histogram1': img_data,
         'histogram2': img_data2,
+        'incorrect_input': incorrect_input,
         'largest_betweenness': largest_betweenness
     }
     
@@ -156,23 +166,26 @@ def get_betw_value(u, v, tempLinv, tempAdjDense):
 
     total_betweenness_score = 0
 
-    for s in source_array:
-        for t in sink_array:
-            # Compute flow betweenness for the given edge
-            v_source_sink_resist1 = tempLinv[u, s] - tempLinv[u, t]
-            v_source_sink_resist2 = tempLinv[v, s] - tempLinv[v, t]
-            b_resist1_resist2 = tempAdjDense[u, v] * (v_source_sink_resist1 - v_source_sink_resist2)
-            total_betweenness_score += b_resist1_resist2
+    try:
+        for s in source_array:
+            for t in sink_array:
+                # Compute flow betweenness for the given edge
+                v_source_sink_resist1 = tempLinv[u, s] - tempLinv[u, t]
+                v_source_sink_resist2 = tempLinv[v, s] - tempLinv[v, t]
+                b_resist1_resist2 = tempAdjDense[u, v] * (v_source_sink_resist1 - v_source_sink_resist2)
+                total_betweenness_score += b_resist1_resist2
 
-    #divide by number of combinations
-    num_of_combinations = len(source_array) * len(sink_array)
-    total_betweenness_score /= num_of_combinations
+        #divide by number of combinations
+        num_of_combinations = len(source_array) * len(sink_array)
+        total_betweenness_score /= num_of_combinations
 
-    betweenness_score = total_betweenness_score.item() # Convert to a standard Python type
-    if betweenness_score < 0:
-        betweenness_score *= -1
+        betweenness_score = total_betweenness_score.item() # Convert to a standard Python type
+        if betweenness_score < 0:
+            betweenness_score *= -1
 
-    return betweenness_score
+        return betweenness_score
+    except IndexError as e:
+        return None
 
 @app.route('/calculate', methods=['POST'])
 def compute_flow_betweenness():

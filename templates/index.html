@@ -184,13 +184,17 @@
             })
             .then(response => response.json())
             .then(data => {
-                large_bet = data.largest_betweenness;
-                updateSourceNodeLabel();
-                displayTopPaths(data.top_paths, data.top_paths2); // Display the top paths0                                
-                drawGraph(data.graph_data);
-                setupColorScaleAndEdges();
-                drawColorScale();
-                displayHistogram(data.histogram1, data.histogram2);
+                if(data.incorrect_input === true) {
+                    alert("Input Out of Bounds")
+                } else {
+                    large_bet = data.largest_betweenness;
+                    updateSourceNodeLabel();
+                    displayTopPaths(data.top_paths, data.top_paths2); // Display the top paths0                                
+                    drawGraph(data.graph_data);
+                    setupColorScaleAndEdges();
+                    drawColorScale();
+                    displayHistogram(data.histogram1, data.histogram2);
+                }
             }); 
         };
 
