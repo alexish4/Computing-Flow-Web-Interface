@@ -361,7 +361,7 @@ function highlightPathEdges(path) {
                 (d.source.id === edge.source && d.target.id === edge.target) ||
                 (d.source.id === edge.target && d.target.id === edge.source)
             );
-            return isHighlighted ? 8 : 2;
+            return isHighlighted ? 8 : 4;
         });
 }
 
@@ -392,7 +392,7 @@ function setupColorScaleAndEdges() {
         console.log("Color scale range:", colorScale.range());
 
         d3.selectAll(".links line") // Select all line elements in the links group
-            .attr("stroke-width", 2)
+            .attr("stroke-width", 4)
             .attr("stroke", d => colorScale(d.betw)); // Set stroke color based on betweenness
     }
     colorEdges();
@@ -453,6 +453,8 @@ function drawColorScale() {
         .attr("transform", `translate(${width}, 0)`)
         .call(axis);
 }
+
+//function 
 
 // Function to open a tab
 function openTab(evt, tabName) {
