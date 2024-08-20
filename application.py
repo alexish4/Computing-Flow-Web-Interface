@@ -229,11 +229,11 @@ def histograms(path_lengths, path_lengths2):
 
     # Generate histogram
     plt.figure()
-    plt.hist(path_lengths, bins=bins, weights=weights, alpha=0.5, label='Edge Weights 1')
-    plt.xlabel('Value')
+    plt.hist(path_lengths, bins=bins, weights=weights, alpha=0.5, label='Path Length(bet)')
+    plt.xlabel('Path Length')
     plt.ylabel('Probability')
     plt.legend(loc='upper right')
-    plt.title('Histogram with Probability on Y-axis')
+    plt.title('Path Length(flow-betweenness)')
 
     # Save to a bytes buffer
     buf = io.BytesIO()
@@ -245,11 +245,11 @@ def histograms(path_lengths, path_lengths2):
     weights = np.ones_like(path_lengths2) / len(path_lengths2)
     # Generate histogram
     plt.figure()
-    plt.hist(path_lengths2, bins=bins, weights=weights, alpha=0.5, label='Edge Weights 2')
-    plt.xlabel('Value')
+    plt.hist(path_lengths2, bins=bins, weights=weights, alpha=0.5, label='Path Length(cor)')
+    plt.xlabel('Path Length')
     plt.ylabel('Probability')
     plt.legend(loc='upper right')
-    plt.title('Histogram with Probability on Y-axis')
+    plt.title('Path Length(correlation)')
 
     # Save to a bytes buffer
     buf = io.BytesIO()
