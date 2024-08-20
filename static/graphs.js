@@ -361,7 +361,7 @@ function highlightPathEdges(path) {
                 (d.source.id === edge.source && d.target.id === edge.target) ||
                 (d.source.id === edge.target && d.target.id === edge.source)
             );
-            return isHighlighted ? 8 : 4;
+            return isHighlighted ? 16 : 8;
         });
 }
 
@@ -384,7 +384,7 @@ function setupColorScaleAndEdges() {
     // Define the color scale
     const colorScale = d3.scaleLinear()
         .domain([0, large_bet]) // Using the maximum edge frequency
-        .range(["white", "red"]); // Low frequency -> black, High frequency -> red
+        .range(["lightgray", "red"]); // Low frequency -> black, High frequency -> red
 
     // Implement the colorEdges Function
     function colorEdges() {
@@ -392,7 +392,7 @@ function setupColorScaleAndEdges() {
         console.log("Color scale range:", colorScale.range());
 
         d3.selectAll(".links line") // Select all line elements in the links group
-            .attr("stroke-width", 4)
+            .attr("stroke-width", 8)
             .attr("stroke", d => colorScale(d.betw)); // Set stroke color based on betweenness
     }
     colorEdges();
@@ -426,7 +426,7 @@ function drawColorScale() {
     
     gradient.append("stop")
         .attr("offset", "0%")
-        .attr("stop-color", d3.interpolateReds(0)); // Lightest
+        .attr("stop-color", "lightgray"); // Lightest
     
     gradient.append("stop")
         .attr("offset", "100%")
