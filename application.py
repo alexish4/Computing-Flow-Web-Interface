@@ -222,9 +222,14 @@ def compute_flow_betweenness():
     return jsonify({'betweenness_score': betweenness_score})
 
 def histograms(path_lengths, path_lengths2):
+    weights = np.ones_like(path_lengths) / len(path_lengths)
+    bins = int(len(path_lengths) / 2 )
+    if len(path_lengths) > 51:
+        bins = int(np.sqrt(len(path_lengths)))
+
     # Generate histogram
     plt.figure()
-    plt.hist(path_lengths, bins=10, alpha=0.5, label='Edge Weights 1', density=True)
+    plt.hist(path_lengths, bins=bins, weights=weights, alpha=0.5, label='Edge Weights 1')
     plt.xlabel('Value')
     plt.ylabel('Probability')
     plt.legend(loc='upper right')
@@ -237,9 +242,10 @@ def histograms(path_lengths, path_lengths2):
     img_data = base64.b64encode(buf.getvalue()).decode('utf8')
     buf.close()
 
+    weights = np.ones_like(path_lengths2) / len(path_lengths2)
     # Generate histogram
     plt.figure()
-    plt.hist(path_lengths2, bins=10, alpha=0.5, label='Edge Weights 2', density=True)
+    plt.hist(path_lengths2, bins=bins, weights=weights, alpha=0.5, label='Edge Weights 2')
     plt.xlabel('Value')
     plt.ylabel('Probability')
     plt.legend(loc='upper right')

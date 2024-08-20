@@ -195,7 +195,6 @@
             formData.append('source', source_id_array);
             formData.append('sink', sink_id_array);
             formData.append('k', k);
-            formData.append('startingIndexValue', startingIndexValue);
             fetch('/upload', {
                 method: 'POST',
                 body: formData
