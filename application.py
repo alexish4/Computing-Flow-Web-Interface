@@ -54,7 +54,7 @@ def upload_file():
     source_array = list(map(int, request.form['source'].split(',')))
     sink_array = list(map(int, request.form['sink'].split(',')))
     
-    k = 10 #by default k is 10
+    k = 51 #by default k is 10
 
     if request.form['k'] != "": #if k has input
         k = int(request.form['k'])
