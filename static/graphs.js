@@ -148,7 +148,7 @@ function drawGraph(graph) {
         .selectAll("line")
         .data(graph.links)
         .enter().append("line")
-        .attr("stroke-width", 2)
+        .attr("stroke-width", 8)
         .attr("stroke", "#999");
 
     // Label edges with weights
@@ -265,6 +265,7 @@ function drawGraph(graph) {
         resistor_1 = null;
         resistor_2 = null;
         drawGraph(graph);
+        setupColorScaleAndEdges();
     };
 
 }        
