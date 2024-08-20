@@ -262,7 +262,9 @@ function drawGraph(graph) {
         }
     };
     document.getElementById('refresh-button').onclick = async function() {
-        setupColorScaleAndEdges();
+        resistor_1 = null;
+        resistor_2 = null;
+        drawGraph(graph);
     };
 
 }        
@@ -359,7 +361,7 @@ function highlightPathEdges(path) {
                 (d.source.id === edge.source && d.target.id === edge.target) ||
                 (d.source.id === edge.target && d.target.id === edge.source)
             );
-            return isHighlighted ? 4 : 2;
+            return isHighlighted ? 8 : 2;
         });
 }
 
