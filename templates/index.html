@@ -145,6 +145,10 @@
             resistor_1 = null
             resistor_2 = null
 
+            // Get the selected radio button value
+            const startingIndexValue = document.querySelector('input[name="option"]:checked').value;
+            console.log("Selected Starting Index:", startingIndexValue);
+
             let sourceInput = document.getElementById('source-resid').value;
             let sinkInput = document.getElementById('sink-resid').value;
 
