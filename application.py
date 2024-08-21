@@ -61,7 +61,8 @@ def upload_file():
     
     if file.filename.endswith('.csv'):
         data = np.loadtxt(file, delimiter=',')
-        rows, cols, correlations = data[:, 0].astype(int), data[:, 1].astype(int), data[:, 2]
+        filtered_data = data[data[:, 2] != 0]
+        rows, cols, correlations = filtered_data[:, 0].astype(int), filtered_data[:, 1].astype(int), filtered_data[:, 2]
     elif file.filename.endswith('.dat'):
         rows, cols, correlations = process_dat_file(file)
     else:
@@ -261,6 +262,6 @@ def histograms(path_lengths, path_lengths2):
     return img_data, img_data2
 
 if __name__ == '__main__':
-    #app.run(debug=True)
-    port = int(os.environ.get("PORT", 5000))
-    app.run(host='0.0.0.0', port=port)
+    app.run(debug=True)
+    # port = int(os.environ.get("PORT", 5000))
+    # app.run(host='0.0.0.0', port=port)
