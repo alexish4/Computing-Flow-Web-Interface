@@ -460,7 +460,7 @@ function drawCorrelationMatrix(graph) {
     const correlationSvg = d3.select("#correlation-svg")
                              .attr("width", 800)
                              .attr("height", 800);
-    const gridSize = 800 / graph.nodes.length; // have to divide width by number of nodes
+    const gridSize = 800 / graph.nodes.length; // Size of each cell
     const nodes = graph.nodes;  
     const links = graph.links;
 
@@ -470,7 +470,12 @@ function drawCorrelationMatrix(graph) {
 
     // Initialize the tooltip with default text
     d3.select("#tooltip")
-        .html("Hover over a cell to see node information");
+        .html("Hover over a cell to see node information")
+        .style("opacity", 0)  // Ensure tooltip is hidden initially
+        .style("position", "absolute") // Ensure tooltip is positioned correctly
+        .style("background-color", "lightgray")
+        .style("padding", "5px")
+        .style("border-radius", "5px");
 
     const cells = correlationSvg.selectAll("rect")
         .data(links)
@@ -486,16 +491,14 @@ function drawCorrelationMatrix(graph) {
             d3.select("#tooltip")
                 .style("left", (event.pageX + 10) + "px")
                 .style("top", (event.pageY - 10) + "px")
-                .style("opacity", 1)
+                .style("opacity", 1) // Make tooltip visible
                 .html(`Nodes: ${nodes.find(n => n.id === d.source.id).id} & ${nodes.find(n => n.id === d.target.id).id}<br>Correlation: ${d.weight.toFixed(3)}`);
-            // // Scroll to the bottom of the page
-            // window.scrollTo({
-            //     top: document.body.scrollHeight,
-            //     behavior: 'smooth'  // Optional: Adds a smooth scrolling animation
-            // });
         })
         .on("mouseout", function(d) {
             d3.select(this).attr("stroke", "none");
+
+            d3.select("#tooltip")
+                .style("opacity", 0); // Hide tooltip
         });
 
     correlationSvg.selectAll(".rowLabel")
@@ -517,11 +520,19 @@ function drawCorrelationMatrix(graph) {
         .text(d => d.name)
         .attr("transform", "rotate(-90)");
 
-    d3.select("body").append("div")
-        .attr("id", "tooltip")
-        .attr("class", "tooltip")
-        .style("opacity", 0);
+    // Initialize tooltip div if not already present
+    if (!d3.select("#tooltip").node()) {
+        d3.select("body").append("div")
+            .attr("id", "tooltip")
+            .attr("class", "tooltip")
+            .style("opacity", 0)
+            .style("position", "absolute")
+            .style("background-color", "lightgray")
+            .style("padding", "5px")
+            .style("border-radius", "5px");
+    }
 }
+
 
 
 // Function to open a tab
