@@ -457,47 +457,41 @@ function drawColorScale() {
 }
 
 function drawCorrelationMatrix(graph) {
-    // Assuming you have your graph data with nodes and links
     const correlationSvg = d3.select("#correlation-svg")
                              .attr("width", 500)
                              .attr("height", 500);
     const gridSize = 20;
-    const nodes = graph.nodes;  // Assuming an array of nodes
-    const links = graph.links;  // Assuming an array of links with correlation values
+    const nodes = graph.nodes;  
+    const links = graph.links;
 
-    // Define color scale
     const colorScale = d3.scaleSequential()
-        .domain([0, 1])  // Correlation values range from 0 to 1
+        .domain([0, 1])
         .interpolator(d3.interpolateRdBu);
 
-    // Create matrix cells
     const cells = correlationSvg.selectAll("rect")
         .data(links)
         .enter().append("rect")
-        .attr("x", d => d.source * gridSize)
-        .attr("y", d => d.target * gridSize)
+        .attr("x", d => nodes.findIndex(n => n.id === d.source.id) * gridSize)
+        .attr("y", d => nodes.findIndex(n => n.id === d.target.id) * gridSize)
         .attr("width", gridSize)
         .attr("height", gridSize)
         .attr("fill", d => colorScale(d.weight))
         .on("mouseover", function(event, d) {
             d3.select(this).attr("stroke", "black").attr("stroke-width", 2);
 
-            // Display the hovered nodes and correlation value
             d3.select("#tooltip")
                 .style("left", (event.pageX + 10) + "px")
                 .style("top", (event.pageY - 10) + "px")
                 .style("opacity", 1)
-                .html(`Nodes: ${nodes[d.source].name} & ${nodes[d.target].name}<br>Correlation: ${d.weight.toFixed(3)}`);
+                .html(`Nodes: ${nodes.find(n => n.id === d.source.id).name} & ${nodes.find(n => n.id === d.target.id).name}<br>Correlation: ${d.weight.toFixed(3)}`);
         })
         .on("mouseout", function(d) {
             d3.select(this).attr("stroke", "none");
 
-            // Hide tooltip
             d3.select("#tooltip")
                 .style("opacity", 0);
         });
 
-    // Add row and column labels (node names)
     correlationSvg.selectAll(".rowLabel")
         .data(nodes)
         .enter().append("text")
@@ -507,7 +501,7 @@ function drawCorrelationMatrix(graph) {
         .attr("text-anchor", "end")
         .text(d => d.name);
 
-        correlationSvg.selectAll(".colLabel")
+    correlationSvg.selectAll(".colLabel")
         .data(nodes)
         .enter().append("text")
         .attr("x", (d, i) => i * gridSize + gridSize / 2)
@@ -517,13 +511,12 @@ function drawCorrelationMatrix(graph) {
         .text(d => d.name)
         .attr("transform", "rotate(-90)");
 
-    // Tooltip
     d3.select("body").append("div")
         .attr("id", "tooltip")
         .attr("class", "tooltip")
         .style("opacity", 0);
+}
 
-} 
 
 // Function to open a tab
 function openTab(evt, tabName) {
