@@ -458,15 +458,19 @@ function drawColorScale() {
 
 function drawCorrelationMatrix(graph) {
     const correlationSvg = d3.select("#correlation-svg")
-                             .attr("width", 500)
-                             .attr("height", 500);
-    const gridSize = 20;
+                             .attr("width", 800)
+                             .attr("height", 800);
+    const gridSize = 800 / graph.nodes.length; // have to divide width by number of nodes
     const nodes = graph.nodes;  
     const links = graph.links;
 
     const colorScale = d3.scaleSequential()
         .domain([0, 1])
         .interpolator(d3.interpolateRdBu);
+
+    // Initialize the tooltip with default text
+    d3.select("#tooltip")
+        .html("Hover over a cell to see node information");
 
     const cells = correlationSvg.selectAll("rect")
         .data(links)
@@ -484,17 +488,14 @@ function drawCorrelationMatrix(graph) {
                 .style("top", (event.pageY - 10) + "px")
                 .style("opacity", 1)
                 .html(`Nodes: ${nodes.find(n => n.id === d.source.id).id} & ${nodes.find(n => n.id === d.target.id).id}<br>Correlation: ${d.weight.toFixed(3)}`);
-            // Scroll to the bottom of the page
-            window.scrollTo({
-                top: document.body.scrollHeight,
-                behavior: 'smooth'  // Optional: Adds a smooth scrolling animation
-            });
+            // // Scroll to the bottom of the page
+            // window.scrollTo({
+            //     top: document.body.scrollHeight,
+            //     behavior: 'smooth'  // Optional: Adds a smooth scrolling animation
+            // });
         })
         .on("mouseout", function(d) {
             d3.select(this).attr("stroke", "none");
-
-            d3.select("#tooltip")
-                .style("opacity", 0);
         });
 
     correlationSvg.selectAll(".rowLabel")
@@ -536,6 +537,15 @@ function openTab(evt, tabName) {
     }
     document.getElementById(tabName).style.display = "block";
     evt.currentTarget.className += " active";
+
+    // Check if the tabName matches the tab you want to scroll to the bottom
+    if (tabName === "CorrelationMatrix") {
+        // Scroll to the bottom of the page
+        window.scrollTo({
+            top: document.body.scrollHeight,
+            behavior: 'smooth' // Optional: Adds a smooth scrolling animation
+        });
+    }
 }
 
 // Open the first tab by default
