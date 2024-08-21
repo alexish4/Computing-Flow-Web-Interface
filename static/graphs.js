@@ -483,7 +483,12 @@ function drawCorrelationMatrix(graph) {
                 .style("left", (event.pageX + 10) + "px")
                 .style("top", (event.pageY - 10) + "px")
                 .style("opacity", 1)
-                .html(`Nodes: ${nodes.find(n => n.id === d.source.id).name} & ${nodes.find(n => n.id === d.target.id).name}<br>Correlation: ${d.weight.toFixed(3)}`);
+                .html(`Nodes: ${nodes.find(n => n.id === d.source.id).id} & ${nodes.find(n => n.id === d.target.id).id}<br>Correlation: ${d.weight.toFixed(3)}`);
+            // Scroll to the bottom of the page
+            window.scrollTo({
+                top: document.body.scrollHeight,
+                behavior: 'smooth'  // Optional: Adds a smooth scrolling animation
+            });
         })
         .on("mouseout", function(d) {
             d3.select(this).attr("stroke", "none");
