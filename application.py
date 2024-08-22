@@ -120,7 +120,7 @@ def upload_file():
 
     for so in source_array:
         for si in sink_array:
-            # Find the top 10 optimal paths from source to sink
+            # Find the top k optimal paths from source to sink
             paths = list(islice(nx.shortest_simple_paths(G, so, si, weight="edge_length"), k))
             paths2 = list(islice(nx.shortest_simple_paths(G, so, si, weight="edge_length2"), k))
             
@@ -134,13 +134,17 @@ def upload_file():
             top_paths2.extend(paths2)
             top_paths2_lengths.extend(lengths2)
 
-    # Pair the paths with their lengths, sort by length, and then separate them
-    sorted_paths_with_lengths = sorted(zip(top_paths_lengths, top_paths), key=lambda x: x[0])[:k] #splicing to k elements
-    sorted_paths2_with_lengths = sorted(zip(top_paths2_lengths, top_paths2), key=lambda x: x[0])[:k]
+    # Remove duplicates by converting paths to a tuple and using a set
+    unique_paths_with_lengths = list({tuple(path): length for length, path in zip(top_paths_lengths, top_paths)}.items())
+    unique_paths2_with_lengths = list({tuple(path): length for length, path in zip(top_paths2_lengths, top_paths2)}.items())
+
+    # Sort the unique paths and lengths by length
+    sorted_paths_with_lengths = sorted(unique_paths_with_lengths, key=lambda x: x[1])[:k]
+    sorted_paths2_with_lengths = sorted(unique_paths2_with_lengths, key=lambda x: x[1])[:k]
 
     # Unpack the sorted pairs back into the arrays
-    top_paths_lengths, top_paths = zip(*sorted_paths_with_lengths)
-    top_paths2_lengths, top_paths2 = zip(*sorted_paths2_with_lengths)
+    top_paths, top_paths_lengths = zip(*sorted_paths_with_lengths) if sorted_paths_with_lengths else ([], [])
+    top_paths2, top_paths2_lengths = zip(*sorted_paths2_with_lengths) if sorted_paths2_with_lengths else ([], [])
 
     # Convert the results back to lists if needed
     top_paths = list(top_paths)
@@ -279,6 +283,6 @@ def histograms(path_lengths, path_lengths2):
     return img_data, img_data2
 
 if __name__ == '__main__':
-    app.run(debug=True)
-    # port = int(os.environ.get("PORT", 5000))
-    # app.run(host='0.0.0.0', port=port)
+    #app.run(debug=True)
+    port = int(os.environ.get("PORT", 5000))
+    app.run(host='0.0.0.0', port=port)
