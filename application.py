@@ -134,6 +134,19 @@ def upload_file():
             top_paths2.extend(paths2)
             top_paths2_lengths.extend(lengths2)
 
+    # Pair the paths with their lengths, sort by length, and then separate them
+    sorted_paths_with_lengths = sorted(zip(top_paths_lengths, top_paths), key=lambda x: x[0])
+    sorted_paths2_with_lengths = sorted(zip(top_paths2_lengths, top_paths2), key=lambda x: x[0])
+
+    # Unpack the sorted pairs back into the arrays
+    top_paths_lengths, top_paths = zip(*sorted_paths_with_lengths)
+    top_paths2_lengths, top_paths2 = zip(*sorted_paths2_with_lengths)
+
+    # Convert the results back to lists if needed
+    top_paths = list(top_paths)
+    top_paths_lengths = list(top_paths_lengths)
+    top_paths2 = list(top_paths2)
+    top_paths2_lengths = list(top_paths2_lengths)
 
     #save histograms to different page
     img_data, img_data2 = histograms(top_paths_lengths, top_paths2_lengths)
