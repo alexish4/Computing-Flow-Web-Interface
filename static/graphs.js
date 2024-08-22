@@ -468,6 +468,33 @@ function drawCorrelationMatrix(graph) {
         .domain([0, 1])
         .interpolator(d3.interpolateRdBu);
 
+    // Scales for axes
+    const xScale = d3.scaleLinear()
+        .domain([0, nodes.length])
+        .range([0, 800]);
+
+    const yScale = d3.scaleLinear()
+        .domain([0, nodes.length])
+        .range([0, 800]);
+
+    // Axes
+    const xAxis = d3.axisBottom(xScale)
+        .ticks(20); // Adjust this for the number of ticks
+
+    const yAxis = d3.axisLeft(yScale)
+        .ticks(20); // Adjust this for the number of ticks
+
+    // Add x-axis
+    correlationSvg.append("g")
+        .attr("class", "x axis")
+        .call(xAxis);
+
+    // Add y-axis
+    correlationSvg.append("g")
+        .attr("class", "y axis")
+        .attr("transform", "translate(-gridSize, 0)") // Translate by gridSize
+        .call(yAxis);
+
     // Initialize the tooltip with default text
     d3.select("#tooltip")
         .html("Hover over a cell to see node information")
