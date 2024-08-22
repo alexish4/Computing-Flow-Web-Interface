@@ -121,8 +121,8 @@ def upload_file():
     for so in source_array:
         for si in sink_array:
             # Find the top 10 optimal paths from source to sink
-            paths = list(islice(nx.shortest_simple_paths(G, so, si, weight="edge_length"), 1))
-            paths2 = list(islice(nx.shortest_simple_paths(G, so, si, weight="edge_length2"), 1))
+            paths = list(islice(nx.shortest_simple_paths(G, so, si, weight="edge_length"), k))
+            paths2 = list(islice(nx.shortest_simple_paths(G, so, si, weight="edge_length2"), k))
             
             # Calculate path lengths for the first set of paths
             lengths = [sum(G[u][v]["edge_length"] for u, v in zip(path[:-1], path[1:])) for path in paths]
@@ -135,8 +135,8 @@ def upload_file():
             top_paths2_lengths.extend(lengths2)
 
     # Pair the paths with their lengths, sort by length, and then separate them
-    sorted_paths_with_lengths = sorted(zip(top_paths_lengths, top_paths), key=lambda x: x[0])
-    sorted_paths2_with_lengths = sorted(zip(top_paths2_lengths, top_paths2), key=lambda x: x[0])
+    sorted_paths_with_lengths = sorted(zip(top_paths_lengths, top_paths), key=lambda x: x[0])[:k] #splicing to k elements
+    sorted_paths2_with_lengths = sorted(zip(top_paths2_lengths, top_paths2), key=lambda x: x[0])[:k]
 
     # Unpack the sorted pairs back into the arrays
     top_paths_lengths, top_paths = zip(*sorted_paths_with_lengths)
