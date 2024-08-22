@@ -113,44 +113,8 @@ def upload_file():
         if largest_betweenness < betw:
             largest_betweenness = betw
 
-    top_paths = []
-    top_paths_lengths = []
-    top_paths2 = []
-    top_paths2_lengths = []
-
-    for so in source_array:
-        for si in sink_array:
-            # Find the top k optimal paths from source to sink
-            paths = list(islice(nx.shortest_simple_paths(G, so, si, weight="edge_length"), k))
-            paths2 = list(islice(nx.shortest_simple_paths(G, so, si, weight="edge_length2"), k))
-            
-            # Calculate path lengths for the first set of paths
-            lengths = [sum(G[u][v]["edge_length"] for u, v in zip(path[:-1], path[1:])) for path in paths]
-            lengths2 = [sum(G[u][v]["edge_length2"] for u, v in zip(path[:-1], path[1:])) for path in paths2]
-
-            # Store the top paths and their lengths
-            top_paths.extend(paths)
-            top_paths_lengths.extend(lengths)
-            top_paths2.extend(paths2)
-            top_paths2_lengths.extend(lengths2)
-
-    # Remove duplicates by converting paths to a tuple and using a set
-    unique_paths_with_lengths = list({tuple(path): length for length, path in zip(top_paths_lengths, top_paths)}.items())
-    unique_paths2_with_lengths = list({tuple(path): length for length, path in zip(top_paths2_lengths, top_paths2)}.items())
-
-    # Sort the unique paths and lengths by length
-    sorted_paths_with_lengths = sorted(unique_paths_with_lengths, key=lambda x: x[1])[:k]
-    sorted_paths2_with_lengths = sorted(unique_paths2_with_lengths, key=lambda x: x[1])[:k]
-
-    # Unpack the sorted pairs back into the arrays
-    top_paths, top_paths_lengths = zip(*sorted_paths_with_lengths) if sorted_paths_with_lengths else ([], [])
-    top_paths2, top_paths2_lengths = zip(*sorted_paths2_with_lengths) if sorted_paths2_with_lengths else ([], [])
-
-    # Convert the results back to lists if needed
-    top_paths = list(top_paths)
-    top_paths_lengths = list(top_paths_lengths)
-    top_paths2 = list(top_paths2)
-    top_paths2_lengths = list(top_paths2_lengths)
+    #Get top paths
+    top_paths, top_paths2, top_paths_lengths, top_paths2_lengths = generateTopPaths(G, k)
 
     #save histograms to different page
     img_data, img_data2 = histograms(top_paths_lengths, top_paths2_lengths)
@@ -282,7 +246,84 @@ def histograms(path_lengths, path_lengths2):
 
     return img_data, img_data2
 
+def generateTopPaths(G, k):
+    top_paths = []
+    top_paths_lengths = []
+    top_paths2 = []
+    top_paths2_lengths = []
+
+    # test_top_paths = []
+    # test_top_paths_lengths = []
+    # test_top_paths2 = []
+    # test_top_paths2_lengths = []
+
+    for so in source_array:
+        for si in sink_array:
+            # Find the top k optimal paths from source to sink
+            paths = list(islice(nx.shortest_simple_paths(G, so, si, weight="edge_length"), k))
+            paths2 = list(islice(nx.shortest_simple_paths(G, so, si, weight="edge_length2"), k))
+            # test_paths = list(islice(nx.shortest_simple_paths(G, so, si, weight="edge_length"), 10))
+            # test_paths2 = list(islice(nx.shortest_simple_paths(G, so, si, weight="edge_length2"), 10))
+            
+            # Calculate path lengths for the first set of paths
+            lengths = [sum(G[u][v]["edge_length"] for u, v in zip(path[:-1], path[1:])) for path in paths]
+            lengths2 = [sum(G[u][v]["edge_length2"] for u, v in zip(path[:-1], path[1:])) for path in paths2]
+            # test_lengths = [sum(G[u][v]["edge_length"] for u, v in zip(path[:-1], path[1:])) for path in test_paths]
+            # test_lengths2 = [sum(G[u][v]["edge_length2"] for u, v in zip(path[:-1], path[1:])) for path in test_paths2]
+
+            # Store the top paths and their lengths
+            top_paths.extend(paths)
+            top_paths_lengths.extend(lengths)
+            top_paths2.extend(paths2)
+            top_paths2_lengths.extend(lengths2)
+            # test_top_paths.extend(test_paths)
+            # test_top_paths_lengths.extend(test_lengths)
+            # test_top_paths2.extend(test_paths2)
+            # test_top_paths2_lengths.extend(test_lengths2)
+
+    # Remove duplicates by converting paths to a tuple and using a set
+    unique_paths_with_lengths = list({tuple(path): length for length, path in zip(top_paths_lengths, top_paths)}.items())
+    unique_paths2_with_lengths = list({tuple(path): length for length, path in zip(top_paths2_lengths, top_paths2)}.items())
+    # test_unique_paths_with_lengths = list({tuple(path): length for length, path in zip(test_top_paths_lengths, test_top_paths)}.items())
+    # test_unique_paths2_with_lengths = list({tuple(path): length for length, path in zip(test_top_paths2_lengths, test_top_paths2)}.items())
+
+    # Sort the unique paths and lengths by length
+    sorted_paths_with_lengths = sorted(unique_paths_with_lengths, key=lambda x: x[1])[:k]
+    sorted_paths2_with_lengths = sorted(unique_paths2_with_lengths, key=lambda x: x[1])[:k]
+    # test_sorted_paths_with_lengths = sorted(test_unique_paths_with_lengths, key=lambda x: x[1])[:k]
+    # test_sorted_paths2_with_lengths = sorted(test_unique_paths2_with_lengths, key=lambda x: x[1])[:k]
+
+    # Unpack the sorted pairs back into the arrays
+    top_paths, top_paths_lengths = zip(*sorted_paths_with_lengths) if sorted_paths_with_lengths else ([], [])
+    top_paths2, top_paths2_lengths = zip(*sorted_paths2_with_lengths) if sorted_paths2_with_lengths else ([], [])
+    # test_top_paths, test_top_paths_lengths = zip(*test_sorted_paths_with_lengths) if test_sorted_paths_with_lengths else ([], [])
+    # test_top_paths2, test_top_paths2_lengths = zip(*test_sorted_paths2_with_lengths) if test_sorted_paths2_with_lengths else ([], [])
+
+    # Convert the results back to lists if needed
+    top_paths = list(top_paths)
+    top_paths_lengths = list(top_paths_lengths)
+    top_paths2 = list(top_paths2)
+    top_paths2_lengths = list(top_paths2_lengths)
+    # test_top_paths = list(test_top_paths)
+    # test_top_paths_lengths = list(test_top_paths_lengths)
+    # test_top_paths2 = list(test_top_paths2)
+    # test_top_paths2_lengths = list(test_top_paths2_lengths)
+
+    # if top_paths == test_top_paths:
+    #     print("True")
+    # if top_paths2 == test_top_paths2:
+    #     print("True")
+    # if top_paths_lengths == test_top_paths_lengths:
+    #     print("True")
+    # if top_paths2_lengths == test_top_paths2_lengths:
+    #     print("True")
+
+    # print(top_paths_lengths[:10])
+    # print(test_top_paths_lengths[:10])
+
+    return top_paths, top_paths2, top_paths_lengths, top_paths2_lengths
+
 if __name__ == '__main__':
-    #app.run(debug=True)
-    port = int(os.environ.get("PORT", 5000))
-    app.run(host='0.0.0.0', port=port)
+    app.run(debug=True)
+    # port = int(os.environ.get("PORT", 5000))
+    # app.run(host='0.0.0.0', port=port)
