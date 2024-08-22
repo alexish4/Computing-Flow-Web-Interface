@@ -113,34 +113,38 @@ def upload_file():
         if largest_betweenness < betw:
             largest_betweenness = betw
 
-    # Find the top k optimal paths from source to sink
-    top_paths = list(islice(nx.shortest_simple_paths(G, source_array[0], sink_array[0], "edge_length"), k))
-    top_paths2 = list(islice(nx.shortest_simple_paths(G, source_array[0], sink_array[0], "edge_length2"), k))
-    
-    #calculate path length
-    path_lengths_edge_weights = []
-    path_lengths_edge_weights2 = []
-    for path in top_paths:
-        path_length = 0
-        for i in range(len(path) - 1):
-            path_length += G[path[i]][path[i + 1]]["edge_length"]
-        path_lengths_edge_weights.append(path_length)
-    for path in top_paths2:
-        path_length2 = 0
-        for i in range(len(path) - 1):
-            path_length2 += G[path[i]][path[i + 1]]["edge_length2"]
-        path_lengths_edge_weights2.append(path_length2)
+    top_paths = []
+    top_paths_lengths = []
+    top_paths2 = []
+    top_paths2_lengths = []
+
+    for so in source_array:
+        for si in sink_array:
+            # Find the top 10 optimal paths from source to sink
+            paths = list(islice(nx.shortest_simple_paths(G, so, si, weight="edge_length"), 1))
+            paths2 = list(islice(nx.shortest_simple_paths(G, so, si, weight="edge_length2"), 1))
+            
+            # Calculate path lengths for the first set of paths
+            lengths = [sum(G[u][v]["edge_length"] for u, v in zip(path[:-1], path[1:])) for path in paths]
+            lengths2 = [sum(G[u][v]["edge_length2"] for u, v in zip(path[:-1], path[1:])) for path in paths2]
+
+            # Store the top paths and their lengths
+            top_paths.extend(paths)
+            top_paths_lengths.extend(lengths)
+            top_paths2.extend(paths2)
+            top_paths2_lengths.extend(lengths2)
+
 
     #save histograms to different page
-    img_data, img_data2 = histograms(path_lengths_edge_weights, path_lengths_edge_weights2)
+    img_data, img_data2 = histograms(top_paths_lengths, top_paths2_lengths)
 
     # Create the top_paths_data using path_lengths_edge_weights and top_paths_2
     top_paths_data = [
-        {'edge_length': path_lengths_edge_weights[i], 'nodes': top_paths[i]}
+        {'edge_length': top_paths_lengths[i], 'nodes': top_paths[i]}
         for i in range(len(top_paths))  # Limit to top 4 paths
     ]
     top_paths_data2 = [
-        {'edge_length': path_lengths_edge_weights2[i], 'nodes': top_paths2[i]}
+        {'edge_length': top_paths2_lengths[i], 'nodes': top_paths2[i]}
         for i in range(len(top_paths2))  # Limit to top 4 paths
     ]
 
