@@ -10,6 +10,8 @@ import networkx as nx
 import pandas as pd
 import heapq
 from itertools import islice
+import matplotlib
+matplotlib.use('Agg')  # Use a non-interactive backend
 import matplotlib.pyplot as plt
 
 app=Flask(__name__)
@@ -309,13 +311,15 @@ def generateTopPaths(G, k):
     # test_top_paths2 = list(test_top_paths2)
     # test_top_paths2_lengths = list(test_top_paths2_lengths)
 
-    # if top_paths == test_top_paths:
+    # test_number = 40
+
+    # if top_paths[:test_number] == test_top_paths[:test_number]:
     #     print("True")
-    # if top_paths2 == test_top_paths2:
+    # if top_paths2[:test_number] == test_top_paths2[:test_number]:
     #     print("True")
-    # if top_paths_lengths == test_top_paths_lengths:
+    # if top_paths_lengths[:test_number] == test_top_paths_lengths[:test_number]:
     #     print("True")
-    # if top_paths2_lengths == test_top_paths2_lengths:
+    # if top_paths2_lengths[:test_number] == test_top_paths2_lengths[:test_number]:
     #     print("True")
 
     # print(top_paths_lengths[:10])
