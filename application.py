@@ -229,6 +229,7 @@ def histograms(path_lengths, path_lengths2):
     buf.seek(0)
     img_data = base64.b64encode(buf.getvalue()).decode('utf8')
     buf.close()
+    plt.close()
 
     weights = np.ones_like(path_lengths2) / len(path_lengths2)
     # Generate histogram
@@ -245,6 +246,7 @@ def histograms(path_lengths, path_lengths2):
     buf.seek(0)
     img_data2 = base64.b64encode(buf.getvalue()).decode('utf8')
     buf.close()
+    plt.close()
 
     return img_data, img_data2
 
@@ -328,6 +330,6 @@ def generateTopPaths(G, k):
     return top_paths, top_paths2, top_paths_lengths, top_paths2_lengths
 
 if __name__ == '__main__':
-    app.run(debug=True)
-    # port = int(os.environ.get("PORT", 5000))
-    # app.run(host='0.0.0.0', port=port)
+#    app.run(debug=True)
+    port = int(os.environ.get("PORT", 5000))
+    app.run(host='0.0.0.0', port=port)
