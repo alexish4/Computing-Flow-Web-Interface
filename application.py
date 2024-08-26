@@ -55,6 +55,8 @@ def upload_file():
     file = request.files['file']
     source_array = list(map(int, request.form['source'].split(',')))
     sink_array = list(map(int, request.form['sink'].split(',')))
+
+    all = True #calculate average or all
     
     k = 51 #by default k is 10
 
@@ -97,9 +99,10 @@ def upload_file():
 
     #creating multiple graphs so you aren't just using average betweenness
     array_of_graphs = []
-    for so in source_array:
-        for si in source_array:
-            array_of_graphs.append(G.copy())
+    if all:
+        for so in source_array:
+            for si in source_array:
+                array_of_graphs.append(G.copy())
 
     for u, v, data in G.edges(data=True):
         # Calculate based on the indices of the source (u) and target (v)
@@ -121,36 +124,54 @@ def upload_file():
         if largest_betweenness < betw:
             largest_betweenness = betw
 
-    for so in source_array:
-        for si in sink_array:
-            for graph in array_of_graphs:
-                for u, v, data in graph.edges(data=True):
-                    # Calculate based on the indices of the source (u) and target (v)
-                    epsilon = 1e-10 #prevent betw being so small that recorded as 0 which is bad for ln
-                    betw = get_betw_value2(u, v, tempLinv, tempAdjDense, so, si)
-                    edge_length = -np.log(max(betw, epsilon)) #edge length is equal to -ln(|betw|) 
+    if all:
+        #betweenness score for each source and sink
+        for so in source_array:
+            for si in sink_array:
+                for graph in array_of_graphs:
+                    for u, v, data in graph.edges(data=True):
+                        # Calculate based on the indices of the source (u) and target (v)
+                        epsilon = 1e-10 #prevent betw being so small that recorded as 0 which is bad for ln
+                        betw = get_betw_value2(u, v, tempLinv, tempAdjDense, so, si)
+                        edge_length = -np.log(max(betw, epsilon)) #edge length is equal to -ln(|betw|) 
+                        edge_length2 = -np.log(data['weight'])
 
-                    data['betw'] = betw 
-                    data['edge_length'] = edge_length
+                        data['betw'] = betw 
+                        data['edge_length'] = edge_length
+                        data['edge_length2'] = edge_length2
 
-                    #also want largest betweenness value
-                    if largest_betweenness < betw:
-                        largest_betweenness = betw
-    top_paths = []
-    top_paths_lengths = []
-    for so in source_array:
-        for si in sink_array:
-            for graph in array_of_graphs:
-                top_path, length = generateTopPaths2(graph, k, so, si)
-                top_paths.extend(top_path)
-                top_paths_lengths.extend(length)
-    unique_paths_with_lengths = list({tuple(path): length for length, path in zip(top_paths_lengths, top_paths)}.items())
-    sorted_paths_with_lengths = sorted(unique_paths_with_lengths, key=lambda x: x[1])[:k]
-    top_paths, top_paths_lengths = zip(*sorted_paths_with_lengths) if sorted_paths_with_lengths else ([], [])
-    all_top_paths = list(top_paths)
-    all_top_paths_lengths = list(top_paths_lengths)
+                        #also want largest betweenness value
+                        if largest_betweenness < betw:
+                            largest_betweenness = betw
+        top_paths = []
+        top_paths2 = []
+        top_paths_lengths = []
+        top_paths2_lengths = []
+        for so in source_array:
+            for si in sink_array:
+                for graph in array_of_graphs:
+                    top_path, top_path2, length, length2 = generateTopPaths2(graph, k, so, si)
+                    top_paths.extend(top_path)
+                    top_paths_lengths.extend(length)
+                    top_paths2.extend(top_path2)
+                    top_paths2_lengths.extend(length2)
+        #For betweenness
+        unique_paths_with_lengths = list({tuple(path): length for length, path in zip(top_paths_lengths, top_paths)}.items())
+        sorted_paths_with_lengths = sorted(unique_paths_with_lengths, key=lambda x: x[1])[:k]
+        top_paths, top_paths_lengths = zip(*sorted_paths_with_lengths) if sorted_paths_with_lengths else ([], [])
+
+        #for correlation
+        unique_paths_with_lengths2 = list({tuple(path): length for length, path in zip(top_paths2_lengths, top_paths2)}.items())
+        sorted_paths_with_lengths2 = sorted(unique_paths_with_lengths2, key=lambda x: x[1])[:k]
+        top_paths2, top_paths2_lengths = zip(*sorted_paths_with_lengths2) if sorted_paths_with_lengths2 else ([], [])
+
+        top_paths = list(top_paths)
+        top_paths_lengths = list(top_paths_lengths)
+        top_paths2 = list(top_paths2)
+        top_paths2_lengths = list(top_paths2_lengths)
     #Get top paths
-    top_paths, top_paths2, top_paths_lengths, top_paths2_lengths = generateTopPaths(G, k)
+    if not all:
+        top_paths, top_paths2, top_paths_lengths, top_paths2_lengths = generateTopPaths(G, k)
 
     #save histograms to different page
     img_data, img_data2 = histograms(top_paths_lengths, top_paths2_lengths)
@@ -302,87 +323,49 @@ def generateTopPaths(G, k):
     top_paths2 = []
     top_paths2_lengths = []
 
-    # test_top_paths = []
-    # test_top_paths_lengths = []
-    # test_top_paths2 = []
-    # test_top_paths2_lengths = []
-
     for so in source_array:
         for si in sink_array:
             # Find the top k optimal paths from source to sink
             paths = list(islice(nx.shortest_simple_paths(G, so, si, weight="edge_length"), k))
             paths2 = list(islice(nx.shortest_simple_paths(G, so, si, weight="edge_length2"), k))
-            # test_paths = list(islice(nx.shortest_simple_paths(G, so, si, weight="edge_length"), 10))
-            # test_paths2 = list(islice(nx.shortest_simple_paths(G, so, si, weight="edge_length2"), 10))
             
             # Calculate path lengths for the first set of paths
             lengths = [sum(G[u][v]["edge_length"] for u, v in zip(path[:-1], path[1:])) for path in paths]
             lengths2 = [sum(G[u][v]["edge_length2"] for u, v in zip(path[:-1], path[1:])) for path in paths2]
-            # test_lengths = [sum(G[u][v]["edge_length"] for u, v in zip(path[:-1], path[1:])) for path in test_paths]
-            # test_lengths2 = [sum(G[u][v]["edge_length2"] for u, v in zip(path[:-1], path[1:])) for path in test_paths2]
 
             # Store the top paths and their lengths
             top_paths.extend(paths)
             top_paths_lengths.extend(lengths)
             top_paths2.extend(paths2)
             top_paths2_lengths.extend(lengths2)
-            # test_top_paths.extend(test_paths)
-            # test_top_paths_lengths.extend(test_lengths)
-            # test_top_paths2.extend(test_paths2)
-            # test_top_paths2_lengths.extend(test_lengths2)
 
     # Remove duplicates by converting paths to a tuple and using a set
     unique_paths_with_lengths = list({tuple(path): length for length, path in zip(top_paths_lengths, top_paths)}.items())
     unique_paths2_with_lengths = list({tuple(path): length for length, path in zip(top_paths2_lengths, top_paths2)}.items())
-    # test_unique_paths_with_lengths = list({tuple(path): length for length, path in zip(test_top_paths_lengths, test_top_paths)}.items())
-    # test_unique_paths2_with_lengths = list({tuple(path): length for length, path in zip(test_top_paths2_lengths, test_top_paths2)}.items())
-
+ 
     # Sort the unique paths and lengths by length
     sorted_paths_with_lengths = sorted(unique_paths_with_lengths, key=lambda x: x[1])[:k]
     sorted_paths2_with_lengths = sorted(unique_paths2_with_lengths, key=lambda x: x[1])[:k]
-    # test_sorted_paths_with_lengths = sorted(test_unique_paths_with_lengths, key=lambda x: x[1])[:k]
-    # test_sorted_paths2_with_lengths = sorted(test_unique_paths2_with_lengths, key=lambda x: x[1])[:k]
 
     # Unpack the sorted pairs back into the arrays
     top_paths, top_paths_lengths = zip(*sorted_paths_with_lengths) if sorted_paths_with_lengths else ([], [])
     top_paths2, top_paths2_lengths = zip(*sorted_paths2_with_lengths) if sorted_paths2_with_lengths else ([], [])
-    # test_top_paths, test_top_paths_lengths = zip(*test_sorted_paths_with_lengths) if test_sorted_paths_with_lengths else ([], [])
-    # test_top_paths2, test_top_paths2_lengths = zip(*test_sorted_paths2_with_lengths) if test_sorted_paths2_with_lengths else ([], [])
 
     # Convert the results back to lists if needed
     top_paths = list(top_paths)
     top_paths_lengths = list(top_paths_lengths)
     top_paths2 = list(top_paths2)
     top_paths2_lengths = list(top_paths2_lengths)
-    # test_top_paths = list(test_top_paths)
-    # test_top_paths_lengths = list(test_top_paths_lengths)
-    # test_top_paths2 = list(test_top_paths2)
-    # test_top_paths2_lengths = list(test_top_paths2_lengths)
-
-    # test_number = 40
-
-    # if top_paths[:test_number] == test_top_paths[:test_number]:
-    #     print("True")
-    # if top_paths2[:test_number] == test_top_paths2[:test_number]:
-    #     print("True")
-    # if top_paths_lengths[:test_number] == test_top_paths_lengths[:test_number]:
-    #     print("True")
-    # if top_paths2_lengths[:test_number] == test_top_paths2_lengths[:test_number]:
-    #     print("True")
-
-    # print(top_paths_lengths[:10])
-    # print(test_top_paths_lengths[:10])
 
     return top_paths, top_paths2, top_paths_lengths, top_paths2_lengths
 
 def generateTopPaths2(graph, k, so, si):
-    top_paths = []
-    top_paths_lengths = []
-
     top_paths = list(islice(nx.shortest_simple_paths(graph, so, si, weight="edge_length"), k))
+    top_paths2 = list(islice(nx.shortest_simple_paths(graph, so, si, weight="edge_length2"), k))
     top_paths_lengths = [sum(graph[u][v]["edge_length"] for u, v in zip(path[:-1], path[1:])) for path in top_paths]
+    top_paths2_lengths = [sum(graph[u][v]["edge_length2"] for u, v in zip(path[:-1], path[1:])) for path in top_paths2]
 
-    return top_paths, top_paths_lengths
+    return top_paths, top_paths2, top_paths_lengths, top_paths2_lengths
 
 
 if __name__ == '__main__':
