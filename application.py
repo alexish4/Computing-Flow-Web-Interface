@@ -56,7 +56,7 @@ def upload_file():
     source_array = list(map(int, request.form['source'].split(',')))
     sink_array = list(map(int, request.form['sink'].split(',')))
 
-    all = True #calculate average or all
+    all = False #calculate average or all
     
     k = 51 #by default k is 10
 
