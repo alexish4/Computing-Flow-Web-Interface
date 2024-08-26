@@ -95,12 +95,11 @@ def upload_file():
     #variable to check if input is out of bounds
     incorrect_input = False
 
-    # #creating multiple graphs so you aren't just using average betweenness
-    # array_of_graphs = []
-    # for so in source_array:
-    #     for si in source_array:
-    #         graph = G
-    #         array_of_graphs.append(graph)
+    #creating multiple graphs so you aren't just using average betweenness
+    array_of_graphs = []
+    for so in source_array:
+        for si in source_array:
+            array_of_graphs.append(G.copy())
 
     for u, v, data in G.edges(data=True):
         # Calculate based on the indices of the source (u) and target (v)
@@ -122,33 +121,34 @@ def upload_file():
         if largest_betweenness < betw:
             largest_betweenness = betw
 
-    # for so in source_array:
-    #     for si in sink_array:
-    #         for graph in array_of_graphs:
-    #             for u, v, data in graph.edges(data=True):
-    #                 # Calculate based on the indices of the source (u) and target (v)
-    #                 betw = get_betw_value2(u, v, tempLinv, tempAdjDense, so, si)
-    #                 edge_length = -np.log(betw) #edge length is equal to -ln(|betw|) 
+    for so in source_array:
+        for si in sink_array:
+            for graph in array_of_graphs:
+                for u, v, data in graph.edges(data=True):
+                    # Calculate based on the indices of the source (u) and target (v)
+                    epsilon = 1e-10 #prevent betw being so small that recorded as 0 which is bad for ln
+                    betw = get_betw_value2(u, v, tempLinv, tempAdjDense, so, si)
+                    edge_length = -np.log(max(betw, epsilon)) #edge length is equal to -ln(|betw|) 
 
-    #                 data['betw'] = betw 
-    #                 data['edge_length'] = edge_length
+                    data['betw'] = betw 
+                    data['edge_length'] = edge_length
 
-    #                 #also want largest betweenness value
-    #                 if largest_betweenness < betw:
-    #                     largest_betweenness = betw
-    # top_paths = []
-    # top_paths_lengths = []
-    # for so in source_array:
-    #     for si in sink_array:
-    #         for graph in array_of_graphs:
-    #             top_path, length = generateTopPaths2(graph, k, so, si)
-    #             top_paths.extend(top_path)
-    #             top_paths_lengths.extend(length)
-    # unique_paths_with_lengths = list({tuple(path): length for length, path in zip(top_paths_lengths, top_paths)}.items())
-    # sorted_paths_with_lengths = sorted(unique_paths_with_lengths, key=lambda x: x[1])[:k]
-    # top_paths, top_paths_lengths = zip(*sorted_paths_with_lengths) if sorted_paths_with_lengths else ([], [])
-    # all_top_paths = list(top_paths)
-    # all_top_paths_lengths = list(top_paths_lengths)
+                    #also want largest betweenness value
+                    if largest_betweenness < betw:
+                        largest_betweenness = betw
+    top_paths = []
+    top_paths_lengths = []
+    for so in source_array:
+        for si in sink_array:
+            for graph in array_of_graphs:
+                top_path, length = generateTopPaths2(graph, k, so, si)
+                top_paths.extend(top_path)
+                top_paths_lengths.extend(length)
+    unique_paths_with_lengths = list({tuple(path): length for length, path in zip(top_paths_lengths, top_paths)}.items())
+    sorted_paths_with_lengths = sorted(unique_paths_with_lengths, key=lambda x: x[1])[:k]
+    top_paths, top_paths_lengths = zip(*sorted_paths_with_lengths) if sorted_paths_with_lengths else ([], [])
+    all_top_paths = list(top_paths)
+    all_top_paths_lengths = list(top_paths_lengths)
     #Get top paths
     top_paths, top_paths2, top_paths_lengths, top_paths2_lengths = generateTopPaths(G, k)
 
@@ -379,13 +379,13 @@ def generateTopPaths2(graph, k, so, si):
     top_paths = []
     top_paths_lengths = []
 
-    paths = list(islice(nx.shortest_simple_paths(graph, so, si, weight="edge_length"), k))
-    lengths = [sum(graph[u][v]["edge_length"] for u, v in zip(path[:-1], path[1:])) for path in paths]
+    top_paths = list(islice(nx.shortest_simple_paths(graph, so, si, weight="edge_length"), k))
+    top_paths_lengths = [sum(graph[u][v]["edge_length"] for u, v in zip(path[:-1], path[1:])) for path in top_paths]
 
     return top_paths, top_paths_lengths
 
 
 if __name__ == '__main__':
-    #app.run(debug=True)
-    port = int(os.environ.get("PORT", 5000))
-    app.run(host='0.0.0.0', port=port)
+    app.run(debug=True)
+    # port = int(os.environ.get("PORT", 5000))
+    # app.run(host='0.0.0.0', port=port)
