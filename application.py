@@ -19,7 +19,6 @@ app=Flask(__name__)
 adj_matrix = []
 source_array = []
 sink_array = []
-largest_betweenness = 0
 #387,388,389,389,390,391,392
 #328,329,334,338,378,348
 
@@ -61,6 +60,8 @@ def upload_file():
     
     k = 51 #by default k is 10
 
+    largest_betweenness = 0
+
     if request.form['k'] != "": #if k has input
         k = int(request.form['k'])
     
@@ -101,6 +102,27 @@ def upload_file():
         for so in source_array:
             for si in source_array:
                 array_of_graphs.append(G.copy())
+
+    #need the average graph because this is the graph we are drawing
+    for u, v, data in G.edges(data=True):
+        # Calculate based on the indices of the source (u) and target (v)
+        betw = get_betw_value(u, v, tempLinv, tempAdjDense)
+        if betw is None:
+            incorrect_input = True
+            response_data = {
+                'incorrect_input': incorrect_input
+            }
+            return jsonify(response_data)
+        edge_length = -np.log(betw) #edge length is equal to -ln(|betw|) 
+        edge_length2 = -np.log(data['weight'])
+
+        data['betw'] = betw 
+        data['edge_length'] = edge_length
+        data['edge_length2'] = edge_length2
+
+        #also want largest betweenness value
+        if largest_betweenness < betw:
+            largest_betweenness = betw
 
     if not all:
         top_paths, top_paths2, top_paths_lengths, top_paths2_lengths = generateTopPaths(G, k, tempLinv, tempAdjDense)
@@ -260,26 +282,6 @@ def generateTopPaths(G, k, tempLinv, tempAdjDense):
     top_paths2 = []
     top_paths2_lengths = []
 
-    for u, v, data in G.edges(data=True):
-        # Calculate based on the indices of the source (u) and target (v)
-        betw = get_betw_value(u, v, tempLinv, tempAdjDense)
-        if betw is None:
-            incorrect_input = True
-            response_data = {
-                'incorrect_input': incorrect_input
-            }
-            return jsonify(response_data)
-        edge_length = -np.log(betw) #edge length is equal to -ln(|betw|) 
-        edge_length2 = -np.log(data['weight'])
-
-        data['betw'] = betw 
-        data['edge_length'] = edge_length
-        data['edge_length2'] = edge_length2
-
-        #also want largest betweenness value
-        if largest_betweenness < betw:
-            largest_betweenness = betw
-
     for so in source_array:
         for si in sink_array:
             # Find the top k optimal paths from source to sink
@@ -317,8 +319,6 @@ def generateTopPaths(G, k, tempLinv, tempAdjDense):
     return top_paths, top_paths2, top_paths_lengths, top_paths2_lengths
 
 def generateTopPaths2(array_of_graphs, k, tempLinv, tempAdjDense):
-    global largest_betweenness
-    
     for so in source_array:
         for si in sink_array:
             for graph in array_of_graphs:
@@ -333,9 +333,6 @@ def generateTopPaths2(array_of_graphs, k, tempLinv, tempAdjDense):
                     data['edge_length'] = edge_length
                     data['edge_length2'] = edge_length2
 
-                    #also want largest betweenness value
-                    if largest_betweenness < betw:
-                        largest_betweenness = betw
         top_paths = []
         top_paths2 = []
         top_paths_lengths = []
