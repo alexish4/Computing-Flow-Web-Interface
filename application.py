@@ -65,6 +65,8 @@ def upload_file():
 
     if request.form['k'] != "": #if k has input
         k = int(request.form['k'])
+    if request.form['average'] == "No":
+        all = True
     
     if file.filename.endswith('.csv'):
         data = np.loadtxt(file, delimiter=',')

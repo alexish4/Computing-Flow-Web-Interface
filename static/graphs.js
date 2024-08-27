@@ -65,6 +65,8 @@ document.getElementById('upload-form').onsubmit = function(e) {
         console.log("Selected Starting Index:", startingIndexValue);
     }
 
+    average = document.querySelector('input[name="option2"]:checked').value;
+
     let sourceInput = document.getElementById('source-resid').value;
     let sinkInput = document.getElementById('sink-resid').value;
 
@@ -108,6 +110,7 @@ document.getElementById('upload-form').onsubmit = function(e) {
     formData.append('source', source_id_array);
     formData.append('sink', sink_id_array);
     formData.append('k', k);
+    formData.append('average', average);
     fetch('/upload', {
         method: 'POST',
         body: formData
