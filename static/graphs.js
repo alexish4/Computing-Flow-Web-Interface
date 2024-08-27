@@ -47,6 +47,22 @@ function displayHistogram(imgData, imgData2) {
     histogramContainer2.appendChild(img2); // Add new image
 }
 
+
+document.getElementById('help-button').addEventListener('click', function() {
+    document.getElementById('modal').style.display = 'block';
+    document.getElementById('modal-overlay').style.display = 'block';
+});
+
+document.getElementById('modal-close').addEventListener('click', function() {
+    document.getElementById('modal').style.display = 'none';
+    document.getElementById('modal-overlay').style.display = 'none';
+});
+
+document.getElementById('modal-overlay').addEventListener('click', function() {
+    document.getElementById('modal').style.display = 'none';
+    document.getElementById('modal-overlay').style.display = 'none';
+});
+
 document.getElementById('upload-form').onsubmit = function(e) {
     e.preventDefault();
     

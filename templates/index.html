@@ -9,9 +9,11 @@
 <body>
     <h1>Current-Flow-Allostery</h1>
     <form id="upload-form" enctype="multipart/form-data">
-        <label for="csv-file">Upload File:</label>
-        <input type="file" id="csv-file" accept=".csv, .dat">
-        <br>
+        <div class="form-group">
+            <label for="csv-file">Upload File:</label>
+            <input type="file" id="csv-file" accept=".csv, .dat">
+            <button type="button" id="help-button">File Format Help</button>
+        </div>
         <div class="radio-group">
             Label Starting Node to Start at 0 or 1?
             <label><input type="radio" name="option" checked = "yes" value="0"> 0</label>
@@ -34,6 +36,13 @@
         <button type="submit">Submit</button>
     </form>
     <br>
+    <div id="modal-overlay" class="modal-overlay"></div>
+    
+    <div id="modal" class="modal">
+        <span id="modal-close" class="modal-close">&times;</span>
+        <h3>File Upload Help</h3>
+        <p>Select a CSV or DAT file to upload. This will be used for generating graphs and analyzing data.</p>
+    </div>
     <div id="label-container" style="text-align: center;">
         <label id="source-node-label" style="display: none; color: green;">Source Node: </label>
         <br>
