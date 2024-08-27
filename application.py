@@ -15,6 +15,7 @@ matplotlib.use('Agg')  # Use a non-interactive backend
 import matplotlib.pyplot as plt
 
 app=Flask(__name__)
+application=app
 
 adj_matrix = []
 source_array = []
