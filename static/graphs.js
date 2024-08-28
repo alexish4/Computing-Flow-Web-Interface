@@ -392,12 +392,14 @@ function updateSourceNodeLabel() {
     const sinkNodeLabel = document.getElementById('sink-node-label');
     const dirLabel = document.getElementById('directions-label');
     const refreshButton = document.getElementById('refresh-button');
+    const downloadButton = document.getElementById('download-pdf');
     
     // Show the label
     sourceNodeLabel.style.display = 'inline';
     sinkNodeLabel.style.display = 'inline'; 
     dirLabel.style.display = 'inline';
     refreshButton.style.display = 'inline';
+    downloadButton.style.display = 'inline';
 
 }
 
@@ -579,6 +581,32 @@ function drawCorrelationMatrix(graph) {
     }
 }
 
+document.getElementById('download-pdf').addEventListener('click', function() {
+    // Select the contents of TopPaths and Histograms
+    var topPathsContent = document.getElementById('TopPaths').innerHTML;
+    var histogramsContent = document.getElementById('Histograms').innerHTML;
+
+    // Create a container for the combined content
+    var content = `
+        <div>
+            ${topPathsContent}
+        </div>
+        <div style="page-break-before: always;">
+            ${histogramsContent}
+        </div>
+    `;
+
+    // Create a hidden div element and add the content
+    var element = document.createElement('div');
+    element.innerHTML = content;
+    document.body.appendChild(element);
+
+    // Generate the PDF
+    html2pdf().from(element).save('download.pdf').then(function() {
+        // Remove the hidden element after generating the PDF
+        document.body.removeChild(element);
+    });
+});
 
 
 // Function to open a tab
