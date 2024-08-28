@@ -66,6 +66,9 @@ document.getElementById('modal-overlay').addEventListener('click', function() {
 document.getElementById('upload-form').onsubmit = function(e) {
     e.preventDefault();
     
+    // Show the loading spinner
+    document.getElementById('loading-spinner').style.display = 'block';
+
     const fileInput = document.getElementById('csv-file');
     const sourceResid = document.getElementById('source-resid').value;
     const sinkResid = document.getElementById('sink-resid').value;
@@ -145,7 +148,11 @@ document.getElementById('upload-form').onsubmit = function(e) {
             displayHistogram(data.histogram1, data.histogram2);
             drawCorrelationMatrix(data.graph_data);
         }
-    }); 
+    })
+    .finally(() => {
+        // Hide the loading spinner after the process is complete
+        document.getElementById('loading-spinner').style.display = 'none';
+    });
 };
 
 function drawGraph(graph) {
