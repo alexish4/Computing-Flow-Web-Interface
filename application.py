@@ -13,6 +13,7 @@ from itertools import islice
 import matplotlib
 matplotlib.use('Agg')  # Use a non-interactive backend
 import matplotlib.pyplot as plt
+from collections import Counter
 
 app=Flask(__name__)
 application=app
@@ -128,10 +129,10 @@ def upload_file():
             largest_betweenness = betw
 
     if not all:
-        top_paths, top_paths2, top_paths_lengths, top_paths2_lengths = generateTopPaths(G, k, tempLinv, tempAdjDense)
+        top_paths, top_paths2, top_paths_lengths, top_paths2_lengths, most_important_nodes, most_important_nodes2 = generateTopPaths(G, k, tempLinv, tempAdjDense)
 
     else:
-        top_paths, top_paths2, top_paths_lengths, top_paths2_lengths = generateTopPaths2(array_of_graphs, k, tempLinv, tempAdjDense)
+        top_paths, top_paths2, top_paths_lengths, top_paths2_lengths, most_important_nodes, most_important_nodes2 = generateTopPaths2(array_of_graphs, k, tempLinv, tempAdjDense)
 
     #save histograms to different page
     img_data, img_data2 = histograms(top_paths_lengths, top_paths2_lengths)
@@ -319,7 +320,20 @@ def generateTopPaths(G, k, tempLinv, tempAdjDense):
     top_paths2 = list(top_paths2)
     top_paths2_lengths = list(top_paths2_lengths)
 
-    return top_paths, top_paths2, top_paths_lengths, top_paths2_lengths
+    # Create an array of the most important nodes based on frequency
+    all_nodes_in_paths = [node for path in top_paths for node in path]  # Flatten the list of top paths
+    all_nodes_in_paths2 = [node for path in top_paths2 for node in path]  # Include nodes from the second set of paths
+    node_frequencies = Counter(all_nodes_in_paths)  # Count the frequency of each node
+    node_frequencies2 = Counter(all_nodes_in_paths2)
+
+    # Create a list of (node, frequency_value) tuples sorted by frequency
+    most_important_nodes = [(node, freq) for node, freq in node_frequencies.most_common()]
+    most_important_nodes2 = [(node, freq) for node, freq in node_frequencies2.most_common()]
+
+    print(most_important_nodes)
+    print(most_important_nodes2)
+
+    return top_paths, top_paths2, top_paths_lengths, top_paths2_lengths, most_important_nodes, most_important_nodes2
 
 def generateTopPaths2(array_of_graphs, k, tempLinv, tempAdjDense):
     for so in source_array:
@@ -363,7 +377,20 @@ def generateTopPaths2(array_of_graphs, k, tempLinv, tempAdjDense):
         top_paths2 = list(top_paths2)
         top_paths2_lengths = list(top_paths2_lengths)
 
-        return top_paths, top_paths2, top_paths_lengths, top_paths2_lengths
+        # Create an array of the most important nodes based on frequency
+        all_nodes_in_paths = [node for path in top_paths for node in path]  # Flatten the list of top paths
+        all_nodes_in_paths2 = [node for path in top_paths2 for node in path]  # Include nodes from the second set of paths
+        node_frequencies = Counter(all_nodes_in_paths)  # Count the frequency of each node
+        node_frequencies2 = Counter(all_nodes_in_paths2)
+
+        # Create a list of (node, frequency_value) tuples sorted by frequency
+        most_important_nodes = [(node, freq) for node, freq in node_frequencies.most_common()]
+        most_important_nodes2 = [(node, freq) for node, freq in node_frequencies2.most_common()]
+
+        print(most_important_nodes)
+        print(most_important_nodes2)
+
+        return top_paths, top_paths2, top_paths_lengths, top_paths2_lengths, most_important_nodes, most_important_nodes2
 
 def miniGenerateTopPaths(graph, k, so, si):
     top_paths = list(islice(nx.shortest_simple_paths(graph, so, si, weight="edge_length"), k))
