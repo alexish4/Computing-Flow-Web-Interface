@@ -141,7 +141,8 @@ document.getElementById('upload-form').onsubmit = function(e) {
         } else {
             large_bet = data.largest_betweenness;
             updateSourceNodeLabel();
-            displayTopPaths(data.top_paths, data.top_paths2); // Display the top paths0                                
+            displayTopPaths(data.top_paths, data.top_paths2); // Display the top paths0                  
+            displayRankedNodes(data.ranked_nodes_data, data.ranked_nodes_data2); // Display the top paths0                         
             drawGraph(data.graph_data);
             setupColorScaleAndEdges();
             drawColorScale();
@@ -360,6 +361,68 @@ function displayTopPaths(paths, paths2) {
                 //alert(`Button for Path ${index + 1} clicked!`);
                 highlightPathEdges(path);
             });
+    });
+}
+
+function displayRankedNodes(ranked_nodes, ranked_nodes2) {
+    const container = d3.select('#ranked-nodes');
+    container.selectAll("*").remove(); // Clear previous paths
+
+    // Create a flex container to hold paths and paths2 side-by-side
+    const flexContainer = container.append("div")
+        .style("display", "flex"); // Use flexbox for horizontal alignment
+
+    // Create a container for paths
+    const pathsContainer = flexContainer.append("div")
+        .html("<strong>Most Important Nodes Based off of Betweenness</strong>")
+        .style("flex", "1");
+        //.style("margin-right", "20px"); // Optional: Add space between paths and paths2
+
+
+    ranked_nodes.forEach((node, index) => {
+        // Create a div to hold the path information and button
+        const pathDiv = pathsContainer.append("div")
+            .style("display", "flex") // Use flexbox for horizontal alignment
+            .style("align-items", "center") // Center items vertically
+            .style("margin-bottom", "10px"); // Optional: Add space between rows
+        
+        pathDiv.append("div")
+            .text(`${index + 1}: Node: ${startingIndexValue === "1" ? node.node + 1: node.node}, Frequency: ${node.frequency}`)
+            .style("margin-right", "10px"); // Optional: Add space between text and button
+
+        // Add a button to the div
+        // pathDiv.append("button")
+        //     .text("Highlight") // Change this text to whatever you want the button to display
+        //     .on("click", () => {
+        //         // Define what should happen when the button is clicked
+        //         //alert(`Button for Path ${index + 1} clicked!`);
+        //         //highlightPathEdges(path);
+        //     });
+    });
+
+    const paths2Container = flexContainer.append("div")
+        .html("<strong>Most Important Nodes Based off of Correlation</strong>")
+        .style("flex", "1");
+
+    ranked_nodes2.forEach((node, index) => {
+        // Create a div to hold the path information and button
+        const pathDiv = paths2Container.append("div")
+            .style("display", "flex") // Use flexbox for horizontal alignment
+            .style("align-items", "center") // Center items vertically
+            .style("margin-bottom", "10px"); // Optional: Add space between rows
+        
+        pathDiv.append("div")
+            .text(`${index + 1}: Node: ${startingIndexValue === "1" ? node.node + 1: node.node}, Frequency: ${node.frequency}`)
+            .style("margin-right", "10px"); // Optional: Add space between text and button
+
+        // Add a button to the div
+        // pathDiv.append("button")
+        //     .text("Highlight") // Change this text to whatever you want the button to display
+        //     .on("click", () => {
+        //         // Define what should happen when the button is clicked
+        //         //alert(`Button for Path ${index + 1} clicked!`);
+        //         //highlightPathEdges(path);
+        //     });
     });
 }
 

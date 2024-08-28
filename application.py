@@ -140,12 +140,23 @@ def upload_file():
     # Create the top_paths_data using path_lengths_edge_weights and top_paths_2
     top_paths_data = [
         {'edge_length': top_paths_lengths[i], 'nodes': top_paths[i]}
-        for i in range(len(top_paths))  # Limit to top 4 paths
+        for i in range(len(top_paths))  
     ]
     top_paths_data2 = [
         {'edge_length': top_paths2_lengths[i], 'nodes': top_paths2[i]}
-        for i in range(len(top_paths2))  # Limit to top 4 paths
+        for i in range(len(top_paths2))  
     ]
+
+    ranked_nodes_data = [
+        {'node': node, 'frequency': freq}
+        for node, freq in most_important_nodes
+    ]
+
+    ranked_nodes_data2 = [
+        {'node': node, 'frequency': freq}
+        for node, freq in most_important_nodes2
+    ]
+
 
     response_data = {
         'graph_data': nx.node_link_data(G),
@@ -153,6 +164,8 @@ def upload_file():
         'top_paths2': top_paths_data2,
         'histogram1': img_data,
         'histogram2': img_data2,
+        'ranked_nodes_data': ranked_nodes_data,
+        'ranked_nodes_data2': ranked_nodes_data2,
         'incorrect_input': incorrect_input,
         'largest_betweenness': largest_betweenness
     }

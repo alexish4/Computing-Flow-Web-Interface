@@ -81,6 +81,7 @@
         <button class="tablinks" onclick="openTab(event, 'TopPaths')">Top Paths</button>
         <button class="tablinks" onclick="openTab(event, 'Histograms')">Histograms</button>
         <button class="tablinks" onclick="openTab(event, 'CorrelationMatrix')">Correlation Matrix</button>
+        <button class="tablinks" onclick="openTab(event, 'RankedNodes')">RankedNodes</button>
     </div>
 
     <!-- Tab content -->
@@ -97,6 +98,11 @@
 
     <div id="CorrelationMatrix" class="tabcontent">
         <svg id="correlation-svg"></svg>
+    </div>
+
+    <div id="RankedNodes" class="tabcontent">
+        <h2>Ranked Nodes</h2>
+        <div id="ranked-nodes"></div>
     </div>
 
     <script src="{{ url_for('static', filename='graphs.js') }}"></script>
