@@ -106,6 +106,7 @@ def upload_file():
         for so in source_array:
             for si in source_array:
                 array_of_graphs.append(G.copy())
+    print(len(array_of_graphs))
 
     #need the average graph because this is the graph we are drawing
     for u, v, data in G.edges(data=True):
@@ -401,61 +402,64 @@ def generateTopPaths(G, k, tempLinv, tempAdjDense):
     return top_paths, top_paths2, top_paths_lengths, top_paths2_lengths, most_important_nodes, most_important_nodes2
 
 def generateTopPaths2(array_of_graphs, k, tempLinv, tempAdjDense):
+    array_index = 0
     for so in source_array:
         for si in sink_array:
-            for graph in array_of_graphs:
-                for u, v, data in graph.edges(data=True):
-                    # Calculate based on the indices of the source (u) and target (v)
-                    epsilon = 1e-10 #prevent betw being so small that recorded as 0 which is bad for ln
-                    betw = get_betw_value2(u, v, tempLinv, tempAdjDense, so, si)
-                    edge_length = -np.log(max(betw, epsilon)) #edge length is equal to -ln(|betw|) 
-                    edge_length2 = -np.log(data['weight'])
+            for u, v, data in array_of_graphs[array_index].edges(data=True):
+                # Calculate based on the indices of the source (u) and target (v)
+                epsilon = 1e-10 #prevent betw being so small that recorded as 0 which is bad for ln
+                betw = get_betw_value2(u, v, tempLinv, tempAdjDense, so, si)
+                edge_length = -np.log(max(betw, epsilon)) #edge length is equal to -ln(|betw|) 
+                edge_length2 = -np.log(data['weight'])
 
-                    data['betw'] = betw 
-                    data['edge_length'] = edge_length
-                    data['edge_length2'] = edge_length2
+                data['betw'] = betw 
+                data['edge_length'] = edge_length
+                data['edge_length2'] = edge_length2
+            array_index += 1
 
-        top_paths = []
-        top_paths2 = []
-        top_paths_lengths = []
-        top_paths2_lengths = []
-        for so in source_array:
-            for si in sink_array:
-                for graph in array_of_graphs:
-                    top_path, top_path2, length, length2 = miniGenerateTopPaths(graph, k, so, si)
-                    top_paths.extend(top_path)
-                    top_paths_lengths.extend(length)
-                    top_paths2.extend(top_path2)
-                    top_paths2_lengths.extend(length2)
-        #For betweenness
-        unique_paths_with_lengths = list({tuple(path): length for length, path in zip(top_paths_lengths, top_paths)}.items())
-        sorted_paths_with_lengths = sorted(unique_paths_with_lengths, key=lambda x: x[1])[:k]
-        top_paths, top_paths_lengths = zip(*sorted_paths_with_lengths) if sorted_paths_with_lengths else ([], [])
+    top_paths = []
+    top_paths2 = []
+    top_paths_lengths = []
+    top_paths2_lengths = []
 
-        #for correlation
-        unique_paths_with_lengths2 = list({tuple(path): length for length, path in zip(top_paths2_lengths, top_paths2)}.items())
-        sorted_paths_with_lengths2 = sorted(unique_paths_with_lengths2, key=lambda x: x[1])[:k]
-        top_paths2, top_paths2_lengths = zip(*sorted_paths_with_lengths2) if sorted_paths_with_lengths2 else ([], [])
+    array_index = 0
+    for so in source_array:
+        for si in sink_array:
+            top_path, top_path2, length, length2 = miniGenerateTopPaths(array_of_graphs[array_index], k, so, si)
+            top_paths.extend(top_path)
+            top_paths_lengths.extend(length)
+            top_paths2.extend(top_path2)
+            top_paths2_lengths.extend(length2)
+            array_index += 1
+    #For betweenness
+    unique_paths_with_lengths = list({tuple(path): length for length, path in zip(top_paths_lengths, top_paths)}.items())
+    sorted_paths_with_lengths = sorted(unique_paths_with_lengths, key=lambda x: x[1])[:k]
+    top_paths, top_paths_lengths = zip(*sorted_paths_with_lengths) if sorted_paths_with_lengths else ([], [])
 
-        top_paths = list(top_paths)
-        top_paths_lengths = list(top_paths_lengths)
-        top_paths2 = list(top_paths2)
-        top_paths2_lengths = list(top_paths2_lengths)
+    #for correlation
+    unique_paths_with_lengths2 = list({tuple(path): length for length, path in zip(top_paths2_lengths, top_paths2)}.items())
+    sorted_paths_with_lengths2 = sorted(unique_paths_with_lengths2, key=lambda x: x[1])[:k]
+    top_paths2, top_paths2_lengths = zip(*sorted_paths_with_lengths2) if sorted_paths_with_lengths2 else ([], [])
 
-        # Create an array of the most important nodes based on frequency
-        all_nodes_in_paths = [node for path in top_paths for node in path]  # Flatten the list of top paths
-        all_nodes_in_paths2 = [node for path in top_paths2 for node in path]  # Include nodes from the second set of paths
-        node_frequencies = Counter(all_nodes_in_paths)  # Count the frequency of each node
-        node_frequencies2 = Counter(all_nodes_in_paths2)
+    top_paths = list(top_paths)
+    top_paths_lengths = list(top_paths_lengths)
+    top_paths2 = list(top_paths2)
+    top_paths2_lengths = list(top_paths2_lengths)
 
-        # Create a list of (node, frequency_value) tuples sorted by frequency
-        most_important_nodes = [(node, freq) for node, freq in node_frequencies.most_common()]
-        most_important_nodes2 = [(node, freq) for node, freq in node_frequencies2.most_common()]
+    # Create an array of the most important nodes based on frequency
+    all_nodes_in_paths = [node for path in top_paths for node in path]  # Flatten the list of top paths
+    all_nodes_in_paths2 = [node for path in top_paths2 for node in path]  # Include nodes from the second set of paths
+    node_frequencies = Counter(all_nodes_in_paths)  # Count the frequency of each node
+    node_frequencies2 = Counter(all_nodes_in_paths2)
 
-        print(most_important_nodes)
-        print(most_important_nodes2)
+    # Create a list of (node, frequency_value) tuples sorted by frequency
+    most_important_nodes = [(node, freq) for node, freq in node_frequencies.most_common()]
+    most_important_nodes2 = [(node, freq) for node, freq in node_frequencies2.most_common()]
 
-        return top_paths, top_paths2, top_paths_lengths, top_paths2_lengths, most_important_nodes, most_important_nodes2
+    print(most_important_nodes)
+    print(most_important_nodes2)
+
+    return top_paths, top_paths2, top_paths_lengths, top_paths2_lengths, most_important_nodes, most_important_nodes2
 
 def miniGenerateTopPaths(graph, k, so, si):
     top_paths = list(islice(nx.shortest_simple_paths(graph, so, si, weight="edge_length"), k))
