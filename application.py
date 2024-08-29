@@ -11,7 +11,7 @@ import pandas as pd
 import heapq
 from itertools import islice
 import matplotlib
-matplotlib.use('Agg')  # Use a non-interactive backend
+#matplotlib.use('Agg')  # Use a non-interactive backend
 import matplotlib.pyplot as plt
 from collections import Counter
 
@@ -136,6 +136,8 @@ def upload_file():
 
     #save histograms to different page
     img_data, img_data2 = histograms(top_paths_lengths, top_paths2_lengths)
+
+    frequencyGraph(most_important_nodes, most_important_nodes2)
 
     # Create the top_paths_data using path_lengths_edge_weights and top_paths_2
     top_paths_data = [
@@ -290,6 +292,56 @@ def histograms(path_lengths, path_lengths2):
     plt.close()
 
     return img_data, img_data2
+
+def frequencyGraph(most_important_nodes, most_important_nodes2):
+    # Extract nodes and frequencies
+    nodes1 = [data[0] for data in most_important_nodes]
+    frequencies1 = [data[1] for data in most_important_nodes]
+
+    nodes2 = [data[0] for data in most_important_nodes2]
+    frequencies2 = [data[1] for data in most_important_nodes2]
+
+    #normalize between 0 and 1 for frequencies
+    min_val = min(frequencies1)
+    max_val = max(frequencies1)
+    frequencies1_normalized = [(v - min_val) / (max_val - min_val) for v in frequencies1]
+    min_val = min(frequencies2)
+    max_val = max(frequencies2)
+    frequencies2_normalized = [(v - min_val) / (max_val - min_val) for v in frequencies2]
+
+    # Handle the mismatch in lengths by padding the shorter list with zeros
+    max_length = max(len(nodes1), len(nodes2))
+    
+    nodes1.extend([None] * (max_length - len(nodes1)))
+    frequencies1_normalized.extend([0] * (max_length - len(frequencies1_normalized)))
+
+    nodes2.extend([None] * (max_length - len(nodes2)))
+    frequencies2_normalized.extend([0] * (max_length - len(frequencies2_normalized)))
+
+    # Plotting
+    plt.figure(figsize=(14, 7))
+
+    # Plot for most_important_nodes
+    bar_width = 0.35
+    index = range(max_length)
+
+    plt.bar(index, frequencies1_normalized, width=bar_width, color='blue', label='Ranked Nodes 1')
+    plt.bar([i + bar_width for i in index], frequencies2_normalized, width=bar_width, color='red', label='Ranked Nodes 2')
+
+    # Adding labels and title
+    plt.xlabel('Nodes')
+    plt.ylabel('Normalized Frequency')
+    plt.title('Frequency of Most Important Nodes')
+    plt.xticks([i + bar_width / 2 for i in index], [str(n) for n in nodes1], rotation=90)
+    plt.legend()
+    plt.grid(True)
+
+    # Show plot
+    # plt.tight_layout()
+    # plt.show()
+
+
+
 
 def generateTopPaths(G, k, tempLinv, tempAdjDense):
     global largest_betweenness
