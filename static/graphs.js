@@ -548,107 +548,73 @@ function drawColorScale() {
 }
 
 function drawCorrelationMatrix(graph) {
-    const correlationSvg = d3.select("#correlation-svg")
-                             .attr("width", 800)
-                             .attr("height", 800);
-    const gridSize = 800 / graph.nodes.length; // Size of each cell
-    const nodes = graph.nodes;  
-    const links = graph.links;
+    const margin = {top: 20, right: 0, bottom: 20, left: 50},
+          width = 800 - margin.left - margin.right,
+          height = 800 - margin.top - margin.bottom;
 
-    const colorScale = d3.scaleSequential()
-        .domain([0, 1])
-        .interpolator(d3.interpolateRdBu);
+    const svg = d3.select("#correlation-svg")
+        .attr("width", width + margin.left + margin.right)
+        .attr("height", height + margin.top + margin.bottom)
+        .append("g")
+        .attr("transform", `translate(${margin.left},${margin.top})`);
 
-    // Scales for axes
-    const xScale = d3.scaleLinear()
-        .domain([0, nodes.length])
-        .range([0, 800]);
+    const nodes = graph.nodes.map(d => d.id);
+    const nodeCount = nodes.length;
+    const cellSize = width / nodeCount;
 
-    const yScale = d3.scaleLinear()
-        .domain([0, nodes.length])
-        .range([0, 800]);
+    // Define the color scale
+    const colorScale = d3.scaleLinear()
+        .domain([0, 1])  // Correlation values between 0 and 1
+        .range(["red", "blue"]);
 
-    // Axes
-    const xAxis = d3.axisBottom(xScale)
-        .ticks(20); // Adjust this for the number of ticks
-
-    const yAxis = d3.axisLeft(yScale)
-        .ticks(20); // Adjust this for the number of ticks
-
-    // Add x-axis
-    correlationSvg.append("g")
-        .attr("class", "x axis")
-        .call(xAxis);
-
-    // Add y-axis
-    correlationSvg.append("g")
-        .attr("class", "y axis")
-        .attr("transform", "translate(-gridSize, 0)") // Translate by gridSize
-        .call(yAxis);
-
-    // Initialize the tooltip with default text
-    d3.select("#tooltip")
-        .html("Hover over a cell to see node information")
-        .style("opacity", 0)  // Ensure tooltip is hidden initially
-        .style("position", "absolute") // Ensure tooltip is positioned correctly
-        .style("background-color", "lightgray")
-        .style("padding", "5px")
-        .style("border-radius", "5px");
-
-    const cells = correlationSvg.selectAll("rect")
-        .data(links)
+    // Create the matrix cells
+    const cells = svg.selectAll("rect")
+        .data(graph.links)
         .enter().append("rect")
-        .attr("x", d => nodes.findIndex(n => n.id === d.source.id) * gridSize)
-        .attr("y", d => nodes.findIndex(n => n.id === d.target.id) * gridSize)
-        .attr("width", gridSize)
-        .attr("height", gridSize)
+        .attr("x", d => nodes.indexOf(d.source.id) * cellSize)
+        .attr("y", d => nodes.indexOf(d.target.id) * cellSize)
+        .attr("width", cellSize)
+        .attr("height", cellSize)
         .attr("fill", d => colorScale(d.weight))
+        .attr("stroke", "#ccc")
         .on("mouseover", function(event, d) {
-            d3.select(this).attr("stroke", "black").attr("stroke-width", 2);
-
-            d3.select("#tooltip")
-                .style("left", (event.pageX + 10) + "px")
-                .style("top", (event.pageY - 10) + "px")
-                .style("opacity", 1) // Make tooltip visible
-                .html(`Nodes: ${nodes.find(n => n.id === d.source.id).id} & ${nodes.find(n => n.id === d.target.id).id}<br>Correlation: ${d.weight.toFixed(3)}`);
+            d3.select(this).attr("stroke", "black");
+            const tooltip = d3.select("#correlation-svg").append("text")
+                .attr("x", width + 10)
+                .attr("y", height / 2)
+                .attr("id", "tooltip")
+                .attr("fill", "black")
+                .text(`Nodes: ${d.source.id} & ${d.target.id}, Correlation: ${d.weight.toFixed(3)}`);
         })
-        .on("mouseout", function(d) {
-            d3.select(this).attr("stroke", "none");
-
-            d3.select("#tooltip")
-                .style("opacity", 0); // Hide tooltip
+        .on("mouseout", function() {
+            d3.select(this).attr("stroke", "#ccc");
+            d3.select("#tooltip").remove();
         });
 
-    correlationSvg.selectAll(".rowLabel")
-        .data(nodes)
-        .enter().append("text")
-        .attr("x", 0)
-        .attr("y", (d, i) => i * gridSize + gridSize / 2)
-        .attr("dy", ".35em")
-        .attr("text-anchor", "end")
-        .text(d => d.name);
+    // Draw x and y axes (with limited labels)
+    const xAxisScale = d3.scalePoint()
+        .domain(nodes)
+        .range([0, width]);
 
-    correlationSvg.selectAll(".colLabel")
-        .data(nodes)
-        .enter().append("text")
-        .attr("x", (d, i) => i * gridSize + gridSize / 2)
-        .attr("y", 0)
-        .attr("dy", ".35em")
-        .attr("text-anchor", "middle")
-        .text(d => d.name)
-        .attr("transform", "rotate(-90)");
+    const yAxisScale = d3.scalePoint()
+        .domain(nodes)
+        .range([0, height]);
 
-    // Initialize tooltip div if not already present
-    if (!d3.select("#tooltip").node()) {
-        d3.select("body").append("div")
-            .attr("id", "tooltip")
-            .attr("class", "tooltip")
-            .style("opacity", 0)
-            .style("position", "absolute")
-            .style("background-color", "lightgray")
-            .style("padding", "5px")
-            .style("border-radius", "5px");
-    }
+    const xAxis = d3.axisBottom(xAxisScale)
+        .tickValues(nodes.filter((d, i) => i % Math.ceil(nodeCount / 20) === 0));  // Show 20 evenly spaced labels
+
+    const yAxis = d3.axisLeft(yAxisScale)
+        .tickValues(nodes.filter((d, i) => i % Math.ceil(nodeCount / 20) === 0));  // Show 20 evenly spaced labels
+
+    svg.append("g")
+        .attr("transform", `translate(0,${height})`)
+        .call(xAxis)
+        .selectAll("text")
+        .attr("transform", "rotate(-65)")
+        .style("text-anchor", "end");
+
+    svg.append("g")
+        .call(yAxis);
 }
 
 document.getElementById('download-pdf').addEventListener('click', function() {
