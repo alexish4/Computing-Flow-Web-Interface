@@ -46,13 +46,15 @@
         <span id="modal-close" class="modal-close">&times;</span>
         <h3>File Upload Help</h3>
         <p>Select a CSV or DAT file to upload. This will be used for generating graphs and analyzing data. Correlation Values has to be between 0 and 1!</p>
-        <p>CSV Format:</p>
-        <p>For CSV's please use a 3 column structure in the following format. [Source Node of an Edge/ResI], [Target Node of an Edge/ResJ], 
-            [Correlation Value of an Edge]. Please include resi-resj in the csv and resj-resi (for example include both: [0, 1, 0.5] and
-            [1, 0, 0.5]). Don't include edges that don't have a connection/has a correlation value of 0. Also don't include column headers
+        CSV Format:
+        <p>
+            For CSV's please use a 3 column structure in the following format. [resi], [resj], [Correlation Value of an Edge]. Please use ',' as
+            delimiter Please include resi-resj in the csv and resj-resi (for example include both: [0, 1, 0.5] and [1, 0, 0.5]). Don't include column headers
         </p>
-        <p>DAT Format:</p>
-        <p>Submit .dat file that has a correlation matrix of the graph.</p>
+        DAT Format:
+        <p>
+            Submit .dat file that has a correlation matrix of the graph.
+        </p>
     </div>
     <div id="label-container" style="text-align: center;">
         <label id="source-node-label" style="display: none; color: green;">Source Node: </label>
