@@ -379,3 +379,64 @@ correlation_data_utilities.drawProtCorrMat(protStruc=struc,corrMat=plotMat,ngVie
                     frame=0,colorsArray=edgeColors,radiiMat=radiiMat,
                     undirected=True)
 view
+
+#In order to apply current flow betweenness methods, we need one or more source
+#and target residues.
+#For IGPS, two well known interaction residues are LEU50 (Allosteric Ligand biniding pocket)
+#and GLU 180 (active site residue)
+#Our structure here has 2 chains, the first is the allosteric region and the
+#second contains the active site.
+#The allosteric region is 253 residues long... and numbering in python starts at 0
+#so our two residues of interest are 50-1 = 49
+#and 253+180-1=432
+#So residues 49 and 432 will serve as the source and target residues repsectively
+print("Keys in strucDict:", strucDict.keys())
+
+struc=strucDict[list(strucDict.keys())[0]]
+print("Selected structure:", struc)
+
+print (struc.select_atoms("resid 50").residues[0])
+print (struc.select_atoms("resid 433").residues[0])
+sourceSet=[49]
+targetSet=[432]
+
+def calculatePathLength(pathGraph,path,weight='weight'):
+    return(np.sum([pathGraph.edges()[(edge[0],edge[1])][weight] \
+                   for edge in zip(path[:-1],path[1:])]))
+
+system='igps'
+variant='apo'
+nRes=454
+Tsim=310.15
+kb=0.0019872041
+magCut=kb*Tsim*1.0
+seqDelta=0
+#filter out desired interaction energy edges based
+#for the given system based upon energy and
+#sequence delta cutoffs
+matData=sigData[
+    (sigData['System']==system) & \
+    (sigData['Variant']==variant) & \
+    ((sigData['ResNum_1']-sigData['ResNum_2'])<seqDelta) &
+    ((sigData['E_Interact.Mean'].abs() - sigData['E_Interact.Std_Err']) > magCut)]
+tempMat=sp.sparse.coo_matrix(
+    (matData['E_Interact.Mean'],
+     (matData['ResNum_1']-1,matData['ResNum_2']-1)),
+    shape=(454,454))
+wMat=tempMat.todense()
+nzInds=np.nonzero(tempMat)
+wMat[nzInds]=1./(np.abs(wMat[nzInds]))
+wMat=np.array(wMat)
+wMatGraph=nx.from_numpy_array(wMat)
+
+pathList,alphas=correlation_data_utilities.converge_subopt_paths_betweenness(
+    wMatGraph,source=49,target=432,maxPaths=10000,verbose=True,giveAlphas=True)
+print(pathList)
+pathLengths=[calculatePathLength(wMatGraph,path) for path in pathList]
+print(pathLengths) #Got path lengths
+
+plt.plot(alphas)
+plt.loglog()
+plt.show()
+plt.plot(pathLengths)
+plt.show()

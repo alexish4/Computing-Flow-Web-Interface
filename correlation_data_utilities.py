@@ -1583,18 +1583,22 @@ def bokeh_tidtyDataTable_barChart(dataTable,xColumns,valColumn,
 def drawProtNetEdge(protStruc,resID1,resID2,ngViewOb,
                     frame=0,edgeColor=[.5,.5,.5],radius=1,
                     *shapeArgs,**shapeKwargs):
-    crd1=pt.center_of_mass(protStruc,':%g@CA'%resID1)[frame]
-    crd2=pt.center_of_mass(protStruc,':%g@CA'%resID2)[frame]
+    # Use MDAnalysis to calculate the center of mass for each residue
+    crd1 = protStruc.select_atoms(f"resid {resID1} and name CA").center_of_mass()
+    crd2 = protStruc.select_atoms(f"resid {resID2} and name CA").center_of_mass()
+        
+    # Get the residue names and IDs using MDAnalysis
+    res1 = protStruc.residues[resID1 - 1]
+    res2 = protStruc.residues[resID2 - 1]
     
+    resname1 = res1.resname
+    resid1 = res1.resid
     
-    resname1=protStruc.topology.residue(resID1-1).name
-    resid1=protStruc.topology.residue(resID1-1).original_resid
+    resname2 = res2.resname
+    resid2 = res2.resid
     
-    resname2=protStruc.topology.residue(resID2-1).name
-    resid2=protStruc.topology.residue(resID2-1).original_resid
-    edgeLabel='%s.%g-%s.%g (%g-%g)'%(
-        resname1,resid1,resname2,resid2,
-        resID1-1,resID2-1)
+    # Create an edge label based on the residue names and IDs
+    edgeLabel = f'{resname1}.{resid1}-{resname2}.{resid2} ({resID1-1}-{resID2-1})'
     
     return ngViewOb.shape.add_cylinder(
         list(crd1),list(crd2),edgeColor,radius,
@@ -1706,13 +1710,9 @@ def drawProtCorrMat(protStruc,corrMat,ngViewOb,
             colorParm={'edgeColor':list(colorsArray[nzInd[0],nzInd[1],:])}
         else:
             colorParm={}
-        
-        # Replace PyTraj's center_of_mass with MDAnalysis equivalent
-        crd1 = protStruc.select_atoms(f"resid {nzInd[0]+1} and name CA").center_of_mass()
-        crd2 = protStruc.select_atoms(f"resid {nzInd[1]+1} and name CA").center_of_mass()
 
         edgeList.append(drawProtNetEdge(
-            crd1,crd2,ngViewOb,frame,
-            radius=radMat[nzInd[0],nzInd[1]],
+            protStruc,nzInd[0]+1,nzInd[1]+1,
+            ngViewOb,frame,radius=radMat[nzInd[0],nzInd[1]],
             **colorParm))
     return edgeList
