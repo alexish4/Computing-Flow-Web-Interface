@@ -1,5 +1,8 @@
+import sys
+print(sys.executable)
 from flask import Flask, request, jsonify, render_template
 import numpy as np
+import pytraj
 import scipy as sp
 from scipy.sparse import coo_matrix
 import copy
@@ -302,6 +305,8 @@ def frequencyGraph(most_important_nodes, most_important_nodes2):
     nodes2 = [data[0] for data in most_important_nodes2]
     frequencies2 = [data[1] for data in most_important_nodes2]
 
+    print("TESSTTT")
+
     #normalize between 0 and 1 for frequencies
     min_val = min(frequencies1)
     max_val = max(frequencies1)
@@ -338,8 +343,8 @@ def frequencyGraph(most_important_nodes, most_important_nodes2):
     plt.grid(True)
 
     # Show plot
-    # plt.tight_layout()
-    # plt.show()
+    #plt.tight_layout()
+    plt.show()
 
 
 
