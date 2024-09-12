@@ -5,6 +5,7 @@
     <title>Current-Flow-Allostery</title>
     <script src="https://d3js.org/d3.v7.min.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.9.2/html2pdf.bundle.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/ngl@2.0.0/dist/ngl.js"></script>
     <link rel="stylesheet" href="{{url_for('static', filename='styles.css') }}">
 </head>
 <body>
@@ -84,6 +85,7 @@
         <button class="tablinks" onclick="openTab(event, 'Histograms')">Histograms</button>
         <button class="tablinks" onclick="openTab(event, 'CorrelationMatrix')">Correlation Matrix</button>
         <button class="tablinks" onclick="openTab(event, 'RankedNodes')">RankedNodes</button>
+        <button class="tablinks" onclick="openTab(event, 'NGLView')">NGLView</button>
     </div>
 
     <!-- Tab content -->
@@ -106,6 +108,12 @@
         <h2>Ranked Nodes</h2>
         <div id="ranked-nodes"></div>
     </div>
+
+    <div id="NGLView" class="tabcontent">
+        <h2>NGLView Visualization</h2>
+        <iframe src="/nglview" width="100%" height="800px" frameborder="0"></iframe>
+    </div>
+
 
     <script src="{{ url_for('static', filename='graphs.js') }}"></script>
 

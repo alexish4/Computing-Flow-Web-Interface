@@ -28,8 +28,6 @@ from bokeh.models.tools import HoverTool
 from bokeh.palettes import Spectral5, Spectral11, Spectral3, Accent3
 from IPython.display import display, HTML
 
-import nglview as nv
-
 reset_output()
 output_notebook()
 
@@ -1534,7 +1532,6 @@ def bokeh_dataTable_heatMap(plotData,Xcol,Ycol,dataCol,
     show(p)
     
 #functions for drawing networks using NGLview
-import nglview as nv
 import pytraj as pt
 import MDAnalysis as mda
 

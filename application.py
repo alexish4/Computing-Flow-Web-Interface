@@ -17,6 +17,8 @@ import matplotlib
 #matplotlib.use('Agg')  # Use a non-interactive backend
 import matplotlib.pyplot as plt
 from collections import Counter
+sys.path.append(os.path.dirname(os.path.abspath(__file__)))
+import EnergyCode
 
 app=Flask(__name__)
 application=app
@@ -50,6 +52,9 @@ def process_dat_file(file):
 
     return rows, cols, correlations
 
+@app.route('/nglview')
+def nglview():
+    return render_template('nglview.html', nglview_html=EnergyCode.visualizeBetweenness())
 
 @app.route('/upload', methods=['POST'])
 def upload_file():
