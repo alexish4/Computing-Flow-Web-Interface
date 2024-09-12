@@ -20,6 +20,7 @@ import MDAnalysis as mda
 import nglview as nv
 from IPython.display import display, HTML
 import tempfile
+from io import StringIO
 
 def visualizeBetweenness():
     energyDataDir='energy_topology'
@@ -574,13 +575,10 @@ def visualizeBetweenness():
     correlation_data_utilities.drawProtCorrMat(protStruc=struc,corrMat=plotMat,ngViewOb=view,
                         frame=0,colorsArray=edgeColors,radiiMat=radiiMat,
                         undirected=True)
-    # Save the NGLview output to a temporary HTML file
-    with tempfile.NamedTemporaryFile(delete=False, suffix='.html') as tmpfile:
-        view.export(tmpfile.name, format='html')
-        tmpfile.seek(0)
-        html_content = tmpfile.read().decode()
-    
-    return html_content
+    buffer = StringIO()
+    nv.write_html(buffer, [view]) 
+
+    return buffer.getvalue()
 
 if __name__ == '__main__':
     visualizeBetweenness()

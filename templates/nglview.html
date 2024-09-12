@@ -1,0 +1,17 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>NGLView Output</title>
+    <script src="https://cdn.jsdelivr.net/npm/ngl@2.2.0/dist/ngl.js"></script>
+    <!-- Load Jupyter widgets library -->
+    <script src="https://cdn.jsdelivr.net/npm/@jupyter-widgets/html-manager@0.20.0/dist/embed.js"></script>
+    <!-- Optional: Add any custom styles here -->
+</head>
+<body>
+    <h1>NGLView Visualization</h1>
+    <div id="nglview-container">
+        {{ nglview_html | safe }}
+    </div>
+</body>
+</html>
