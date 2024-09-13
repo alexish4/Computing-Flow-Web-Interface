@@ -1,2 +1,11 @@
 *.csv
 *.dat
+EnergyAnalysisCode.py
+__pycache__/
+distance_topology/
+energy_topology/
+node_modules/
+package-lock.json
+package.json
+static/dist/
+structures/

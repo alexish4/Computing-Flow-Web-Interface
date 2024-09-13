@@ -1,0 +1,40 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>NGLView Output</title>
+    
+    <!-- Include NGLView JS -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/ngl/2.3.1/ngl.js"></script>
+
+
+    <!-- Optional: Add any custom styles here -->
+    <style>
+        body {
+            margin: 0;
+            padding: 0;
+        }
+        #nglview-container {
+            width: 100%;
+            height: 100vh;
+            overflow: hidden;
+        }
+    </style>
+</head>
+<body>
+    <h1>NGLView Visualization</h1>
+    <div id="nglview-container">
+        {{ nglview_html | safe }}
+    </div>
+    <script>
+        // Ensure nglview widget is properly initialized
+        document.addEventListener("DOMContentLoaded", function() {
+            var stage = new NGL.Stage("nglview-container");
+            stage.loadFile("rcsb://1crn").then(function(comp) {
+                comp.addRepresentation("cartoon");
+                stage.autoView();
+            });
+        });
+    </script>
+</body>
+</html>
