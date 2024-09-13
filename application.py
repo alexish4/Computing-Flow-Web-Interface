@@ -1,6 +1,6 @@
 import sys
 print(sys.executable)
-from flask import Flask, request, jsonify, render_template
+from flask import Flask, request, jsonify, render_template, send_from_directory
 import numpy as np
 import pytraj
 import scipy as sp
@@ -31,7 +31,7 @@ sink_array = []
 
 @app.route('/')
 def index():
-    return render_template('index.html')
+    return send_from_directory('static/dist', 'index.html')
 
 def process_dat_file(file):
     data = np.loadtxt(file)
@@ -52,9 +52,9 @@ def process_dat_file(file):
 
     return rows, cols, correlations
 
-@app.route('/nglview')
-def nglview():
-    return render_template('nglview.html', nglview_html=EnergyCode.visualizeBetweenness())
+# @app.route('/nglview')
+# def nglview():
+#     return send_from_directory('static/dist', 'nglview.html', nglview_html=EnergyCode.visualizeBetweenness())
 
 @app.route('/upload', methods=['POST'])
 def upload_file():
