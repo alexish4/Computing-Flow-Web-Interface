@@ -84,7 +84,7 @@ document.getElementById('upload-form').onsubmit = function(e) {
         console.log("Selected Starting Index:", startingIndexValue);
     }
 
-    average = document.querySelector('input[name="option2"]:checked').value;
+    const average = document.querySelector('input[name="option2"]:checked').value;
 
     let sourceInput = document.getElementById('source-resid').value;
     let sinkInput = document.getElementById('sink-resid').value;
@@ -644,30 +644,31 @@ document.getElementById('download-pdf').addEventListener('click', function() {
     });
 });
 
+// document.addEventListener('DOMContentLoaded', () => {
 
-// Function to open a tab
-function openTab(evt, tabName) {
-    let i, tabcontent, tablinks;
-    tabcontent = document.getElementsByClassName("tabcontent");
-    for (i = 0; i < tabcontent.length; i++) {
-        tabcontent[i].style.display = "none";
-    }
-    tablinks = document.getElementsByClassName("tablinks");
-    for (i = 0; i < tablinks.length; i++) {
-        tablinks[i].className = tablinks[i].className.replace(" active", "");
-    }
-    document.getElementById(tabName).style.display = "block";
-    evt.currentTarget.className += " active";
+//     function openTab(evt, tabName) {
+//         let i, tabcontent, tablinks;
+//         tabcontent = document.getElementsByClassName("tabcontent");
+//         for (i = 0; i < tabcontent.length; i++) {
+//             tabcontent[i].style.display = "none";
+//         }
+//         tablinks = document.getElementsByClassName("tablinks");
+//         for (i = 0; i < tablinLynaks.length; i++) {
+//             tablinks[i].className = tablinks[i].className.replace(" active", "");
+//         }
+//         document.getElementById(tabName).style.display = "block";
+//         evt.currentTarget.className += " active";
 
-    // Check if the tabName matches the tab you want to scroll to the bottom
-    if (tabName === "CorrelationMatrix") {
-        // Scroll to the bottom of the page
-        window.scrollTo({
-            top: document.body.scrollHeight,
-            behavior: 'smooth' // Optional: Adds a smooth scrolling animation
-        });
-    }
-}
+//         // Check if the tabName matches the tab you want to scroll to the bottom
+//         if (tabName === "CorrelationMatrix") {
+//             // Scroll to the bottom of the page
+//             window.scrollTo({
+//                 top: document.body.scrollHeight,
+//                 behavior: 'smooth' // Optional: Adds a smooth scrolling animation
+//             });
+//         }
+//     }
 
-// Open the first tab by default
-document.querySelector(".tablinks").click();
+//     // Open the first tab by default
+//     document.querySelector(".tablinks").click();
+// });
